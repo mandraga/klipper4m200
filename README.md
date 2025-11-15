@@ -17,13 +17,13 @@ ID 1f3a:efe8 Allwinner Technology sunxi SoC OTG connector in FEL/flashing mode
 ```
 Then, using sunxi-tools, you can upload a uboot image like this:
 ```
-sunxi-tools$ sudo ./sunxi-fel uboot u-boot-sunxi-with-spl-4m200.bin
+sunxi-tools$ sudo ./sunxi-fel uboot u-boot-sunxi-with-spl.bin
 ```
 It starts uboot and you can browse files and dump data.
 
-Then you can use this uboot prompt to save or restore data from a usb stick.
-Because uboot data transfers are no more than 16MB on this machine, we must do some workaroud.
-A set of scripts allows you to:
+Then you can use this uboot prompt to boot Armbian from the usb stick.
+
+Once in Linux, a set of scripts allows you to:
 - dump the original disk image on the usb stick.
 - flash the device with a custom image, like a Debian.
 
@@ -31,6 +31,18 @@ A set of scripts allows you to:
 
 
 
-## At first boot, it will flash the microcontroller and start Klipper.
+## At first boot
+
+### Get the network working
+
+### Install klipper
+
+### Flash the microcontroller and start Klipper
 
 
+## Klipper config
+
+rpanfili has already configured klipper for zortrax M200 but for an SK200 MCU board and he changed the step motors. However the geometry and a lot of stock parameters are already in his configuration.
+
+Zortrax has published a Marlin port for the M200.
+By looking at the commits, we can find the MCU pinouts to configure the klipper MCU firmware.

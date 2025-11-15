@@ -1,0 +1,12 @@
+[submodule "submodules/rpanfili_sk200"]
+	path = submodules/rpanfili_sk200
+	url = https://github.com/rpanfili/sk200.git
+[submodule "submodules/sunxi-tools"]
+	path = submodules/sunxi-tools
+	url = https://github.com/linux-sunxi/sunxi-tools.git
+[submodule "MarlinZortraxM200"]
+	path = MarlinZortraxM200
+	url = https://github.com/Zortrax3D/MarlinZortraxM200.git
+[submodule "submodules/MarlinZortraxM200"]
+	path = submodules/MarlinZortraxM200
+	url = https://github.com/Zortrax3D/MarlinZortraxM200.git

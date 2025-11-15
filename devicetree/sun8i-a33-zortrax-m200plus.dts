@@ -1,0 +1,576 @@
+/*
+ * Copyright 2016 - Patrick Areny <pataraign@gmail.com>
+ *
+ *
+ * This file is dual-licensed: you can use it either under the terms
+ * of the GPL or the X11 license, at your option. Note that this dual
+ * licensing only applies to this file, and not this project as a
+ * whole.
+ *
+ *  a) This file is free software; you can redistribute it and/or
+ *     modify it under the terms of the GNU General Public License as
+ *     published by the Free Software Foundation; either version 2 of the
+ *     License, or (at your option) any later version.
+ *
+ *     This file is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *     GNU General Public License for more details.
+ *
+ * Or, alternatively,
+ *
+ *  b) Permission is hereby granted, free of charge, to any person
+ *     obtaining a copy of this software and associated documentation
+ *     files (the "Software"), to deal in the Software without
+ *     restriction, including without limitation the rights to use,
+ *     copy, modify, merge, publish, distribute, sublicense, and/or
+ *     sell copies of the Software, and to permit persons to whom the
+ *     Software is furnished to do so, subject to the following
+ *     conditions:
+ *
+ *     The above copyright notice and this permission notice shall be
+ *     included in all copies or substantial portions of the Software.
+ *
+ *     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ *     EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+ *     OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ *     NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+ *     HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+ *     WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ *     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+ *     OTHER DEALINGS IN THE SOFTWARE.
+ */
+
+/dts-v1/;
+#include "sun8i-a33.dtsi"
+//#include "sunxi-common-regulators.dtsi"
+
+#include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/input/input.h>
+
+/ {
+	model = "Zortrax A33-M200";
+	compatible = "zortrax,a33-m200","allwinner,sun8i-a33";
+
+	aliases {
+		serial0 = &uart0;   // Console on PF2 and PF4
+        serial2 = &uart2;   // MCU connection on PB0 and PB1, if not properly configured, it will mix with UART1 and mess up the uboot console
+	};
+
+	chosen {
+		stdout-path = "serial0:115200n8";
+	};
+
+    leds {
+		compatible = "gpio-leds";
+
+		led-green {
+			label = "blue-led:usr";
+			gpios = <&pio 4 16 GPIO_ACTIVE_LOW>;  // PE16: port E (4), pin 16
+		};
+
+        power-button-led {
+			label = "power-button-led:usr";
+			gpios = <&pio 1 2 GPIO_ACTIVE_LOW>;   // PB02: port B (1), pin 2
+		};
+        
+        // Those are not leds but reusing the gpio-leds driver to export them
+        led-mcu-nrst {
+			label = "mcunrst:led1:usr";
+			gpios = <&pio 5 1 GPIO_ACTIVE_LOW>;   // PF01: port F (5), pin 1
+		};
+        led-mcu-boot {
+			label = "mcuboot:led1:usr";
+			gpios = <&pio 2 2 GPIO_ACTIVE_HIGH>;  // PC02: port C (2), pin 2
+		};
+	};
+};
+
+// No audio
+&codec {
+	status = "disabled";
+};
+
+&dai {
+	status = "disabled";
+};
+
+&ehci0 {
+	status = "okay";
+};
+
+&ohci0 {
+	status = "okay";
+};
+
+/* 
+// The SDIO pins are not connected.
+&mmc0 {
+	vmmc-supply = <&reg_dcdc1>;
+	bus-width = <4>;
+	//cd-gpios = <&pio 1 4 GPIO_ACTIVE_LOW>; PB4
+	status = "okay";
+};
+*/
+
+// For the Wifi chip on rev 1.1
+&mmc1 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&mmc1_pg_pins>;
+	vmmc-supply = <&reg_dldo1>;
+	mmc-pwrseq = <&wifi_pwrseq>;
+	bus-width = <4>;
+	non-removable;
+	status = "okay";
+
+	brcmf: wifi@1 {
+		reg = <1>;
+		compatible = "brcm,bcm4329-fmac";
+		interrupt-parent = <&r_pio>;
+		interrupts = <0 7 IRQ_TYPE_LEVEL_LOW>; /* PL7 */
+		interrupt-names = "host-wake";
+	};
+};
+
+&mmc2 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&mmc2_8bit_pins>;
+	vmmc-supply = <&reg_dcdc1>;
+	bus-width = <8>;
+	non-removable;
+	cap-mmc-hw-reset;
+	status = "okay";
+};
+
+&mmc2_8bit_pins {
+	// Increase drive strength for DDR modes
+	drive-strength = <40>;
+};
+
+&r_rsb {
+	status = "okay";
+
+	axp22x: pmic@3a3 {
+		compatible = "x-powers,axp223";
+		reg = <0x3a3>;
+		interrupt-parent = <&r_intc>;
+		interrupts = <GIC_SPI 32 IRQ_TYPE_LEVEL_LOW>;
+		eldoin-supply = <&reg_dcdc1>;
+	};
+};
+
+#include "axp223.dtsi"
+
+&ac_power_supply {
+	status = "okay";
+};
+
+&battery_power_supply {
+	status = "okay";
+};
+
+&reg_aldo1 {
+	regulator-always-on;
+	regulator-min-microvolt = <3000000>;
+	regulator-max-microvolt = <3000000>;
+	regulator-name = "vcc-io";
+};
+
+&reg_aldo2 {
+	regulator-always-on;
+	regulator-min-microvolt = <2350000>;
+	regulator-max-microvolt = <2650000>;
+	regulator-name = "vdd-dll";
+};
+
+&reg_aldo3 {
+	regulator-always-on;
+	regulator-min-microvolt = <2700000>;
+	regulator-max-microvolt = <3300000>;
+	regulator-name = "vcc-pll-avcc";
+};
+
+&reg_dc5ldo {
+	regulator-always-on;
+	regulator-min-microvolt = <900000>;
+	regulator-max-microvolt = <1400000>;
+	regulator-name = "vdd-cpus";
+};
+
+&reg_dcdc1 {
+	regulator-always-on;
+	regulator-min-microvolt = <3000000>;
+	regulator-max-microvolt = <3000000>;
+	regulator-name = "vcc-3v0";
+};
+
+&reg_dcdc2 {
+	regulator-always-on;
+	regulator-min-microvolt = <900000>;
+	regulator-max-microvolt = <1400000>;
+	regulator-name = "vdd-sys";
+};
+
+&reg_dcdc3 {
+	regulator-always-on;
+	regulator-min-microvolt = <900000>;
+	regulator-max-microvolt = <1400000>;
+	regulator-name = "vdd-cpu";
+};
+
+&reg_dcdc5 {
+	regulator-always-on;
+	regulator-min-microvolt = <1500000>;
+	regulator-max-microvolt = <1500000>;
+	regulator-name = "vcc-dram";
+};
+
+
+&reg_eldo1 {
+	regulator-min-microvolt = <1800000>;
+	regulator-max-microvolt = <1800000>;
+	regulator-name = "vcc-1v8-unknownusage";
+};
+
+&reg_eldo2 {
+	regulator-min-microvolt = <1800000>;
+	regulator-max-microvolt = <1800000>;
+	regulator-name = "vcc-1v8-csi";
+};
+
+&reg_eldo3 {
+	regulator-min-microvolt = <2800000>;
+	regulator-max-microvolt = <2800000>;
+	regulator-name = "vcc-2v8-csi";
+};
+
+&reg_dldo1 {
+	regulator-min-microvolt = <3300000>;
+	regulator-max-microvolt = <3300000>;
+	regulator-name = "vcc-3V3-Wifi_unused";
+};
+
+
+&reg_dldo2 {
+	regulator-min-microvolt = <1800000>;
+	regulator-max-microvolt = <1800000>;
+	regulator-name = "vcc-1v8-unknownusage";
+};
+
+&reg_dldo3 {
+	regulator-min-microvolt = <2800000>;
+	regulator-max-microvolt = <2800000>;
+	regulator-name = "iovdd-2v8-csi";
+};
+
+&reg_dc1sw {
+	regulator-name = "vcc-lcd";
+};
+
+&reg_drivevbus {
+	regulator-name = "usb0-vbus";
+	status = "okay";
+};
+
+&reg_rtc_ldo {
+	regulator-name = "vcc-rtc";
+};
+
+&usb_power_supply {
+    status = "okay";
+};
+
+&sound {
+ 	status = "disabled";
+};
+
+// On the a23-a33 dtsi, the UART is on the PF2 and PF4 like in the fex file
+// However sun8i-a33.dsi sets it to PB0 and PB1 and it works, we have the console anyway.
+// It is because it mixes uart1 and uart2 on PB0 and PB1
+&uart0 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&uart0_pf_pins>;
+	status = "okay";
+};
+
+// Disabled bluetooth but uses some pins
+/*
+&uart1 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&uart1_xfer &uart1_cts &uart1_rts>;
+	uart-has-rtscts;
+	status = "disabled";
+
+	bluetooth {
+		compatible = "brcm,bcm4345c5";
+		clocks = <&r 1>;
+		clock-names = "lpo";
+		max-speed = <1500000>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&bt_host_wake_pin &bt_wake_pin &bt_reset_pin>;
+		vbat-supply = <&wifi_bat>;
+		vddio-supply = <&vcc_wl>;
+	};
+};
+*/
+
+&uart2 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&uart2_pb_pins>;
+	status = "okay";
+};
+
+/*
+[gpio_para]
+gpio_used = 1
+gpio_pin_1 = port:PB02<1><default><default><0>  pin 3 on P4 -> power button LED
+gpio_pin_2 = port:PB03<1><default><default><0>  ?
+gpio_pin_3 = port:PE17<1><default><default><1>  ?
+gpio_pin_4 = port:PH01<1><default><default><0>  PIN_VALUE_FILE="/sys/class/gpio_sw/PH1/data" 1=USB_slave 0=USB Host in usb_mode_script.sh -> connected to usb ID pin 49 PH08 of the SOM
+gpio_pin_5 = port:PC01<1><default><default><0>  Pin named GPIO on P3
+gpio_pin_6 = port:PC00<1><default><default><0>  Pin named ALDOHC on P3
+gpio_pin_7 = port:PC02<1><default><default><1>  Pin named BOOT on P3
+gpio_pin_8 = port:PC03<0><1><default><0>        Pin named GPIOS on P3
+gpio_pin_9 = port:PF01<1><default><default><0>  Pin named NRST on P3
+gpio_pin_10 = port:PF00<1><default><default><0> Pin named SLP on P3
+
+In uboot:
+gpio set 225      # Set PH01 high 1=USB_slave
+gpio clear 225    # Set PH01 low  0=USB Host
+gpio input 225    # Set PH01 as input (tristate)
+
+p3 = +3V SW LED GND GND GND DP DN VBUS VBUS
+SW seems unconnected to the SOM, hence the useless switch on the printer, probably that they did not latch the power off state.
+
+SOM's USBDRVVBUS goes to a transistor that powers VBUS or not
+*/
+
+&i2c0 {
+    status = "okay";
+
+    touchscreen@38 {
+        compatible = "focaltech,ft5x06";
+        reg = <0x38>;
+        interrupt-parent = <&pio>;
+		interrupts = <1 5 IRQ_TYPE_EDGE_FALLING>; // PB05: port B (1), pin 5
+        reset-gpios = <&pio 6 10 GPIO_ACTIVE_HIGH>; // PG10: port G (6), pin 10
+        touchscreen-size-x = <480>;
+        touchscreen-size-y = <800>;
+        touchscreen-inverted-x = <0>;
+        touchscreen-inverted-y = <1>;
+        touchscreen-swapped-x-y = <0>;
+        wakeup-source;
+        status = "okay";
+    };
+};
+
+/*
+&usb_otg {
+	//dr_mode = "host";
+	status = "disabled";
+	dr_mode = "otg";
+	//status = "okay";
+};
+
+&usbphy {
+	compatible = "allwinner,sun8i-a23-usb-phy";
+    usb0_id_det-gpios = <&pio 7 8 GPIO_ACTIVE_HIGH>; // PH08: port H (7), pin 8
+	// VBUS detection from AXP221 internally, no AXP223 GPIO is connected to VBUS
+	// does not work usb0_vbus_det-gpio = <&axp_gpio 1 GPIO_ACTIVE_HIGH>; // AXP221 GPIO1 has also the POWER label and toggles at the same time as VBUS on kernel start
+	//usb0_vbus_det-gpio = <&axp_gpio 0 GPIO_ACTIVE_HIGH>;
+	// Non sense pin
+	//usb0_vbus_det-gpio = <&pio 1 3 GPIO_ACTIVE_HIGH>; // PB3 does not work neither
+	//platform 1c1a000.usb: deferred probe pending: platform: supplier 1c19400.phy not ready
+    usb0_vbus-supply = <&reg_dcdc1>;
+	// non standard 
+	usb0_vbus_power-supply = <&usb_power_supply>; // USB1 VBUS is always on
+	// standard
+    usb0_vbus-supply = <&reg_drivevbus>; // AXP223 regulated 5V for USB OTG
+	// non standard 
+    usb1_vbus_power-supply = <&usb_power_supply>; // USB1 VBUS is always on
+	// standard
+	usb1_vbus-supply = <&usb_power_supply>; // USB1 VBUS is always on
+    status = "okay";
+};
+*/
+
+&usb_otg {
+	dr_mode = "otg";
+	status = "disabled";
+};
+
+&usb_power_supply {
+	status = "okay";
+};
+
+&usbphy {
+	status = "okay";
+};
+
+
+&pio {
+    vcc-pa-supply = <&reg_dcdc1>;
+    vcc-pb-supply = <&reg_dcdc1>;
+    vcc-pc-supply = <&reg_dcdc1>;
+    //vcc-pe-supply = <&reg_eldo2>;
+    vcc-pe-supply = <&reg_dcdc1>;
+    vcc-pf-supply = <&reg_dcdc1>;
+    vcc-pg-supply = <&reg_dcdc1>;
+	vcc-ph-supply = <&reg_dcdc1>;
+    //vcc-pl-supply = <&reg_dldo1>; // Not clear, but reg not found in the kernel start
+	vcc-pl-supply = <&reg_dcdc1>;
+
+	uart0_pf_pins: uart0-pf-pins {
+		allwinner,pins = "PF2", "PF4";
+		allwinner,function = "uart0";
+	};
+
+    // MCU connection: PB0/PB1 used for UART2
+    uart2_pb_pins: uart2-pb-pins {
+		allwinner,pins = "PB0", "PB1";
+		allwinner,function = "uart2";
+	};
+
+    /* PB3 "Clear To Send" in conflict with power button led gpio...
+    uart2_cts_rts_pb_pins: uart2-cts-rts-pb-pins {
+        pins = "PB2", "PB3";
+        function = "uart2";
+    };
+    */
+
+    wifi_pwrseq: wifi-pwrseq {
+        compatible = "mmc-pwrseq-simple";
+        reset-gpios = <&pio 11 6 GPIO_ACTIVE_HIGH>; // PL6
+    };
+    /*
+	wireless-bluetooth {
+		bt_wake_pin: bt-wake-pin {
+			allwinner,pins = <11 10 GPIO_ACTIVE_HIGH &pcfg_pull_none>;
+		};
+
+		bt_host_wake_pin: bt-host-wake-pin {
+			allwinner,pins = <11 9 GPIO_ACTIVE_HIGH &pcfg_pull_none>;
+		};
+
+		bt_reset_pin: bt-reset-pin {
+			allwinner,pins = <11 8 GPIO_ACTIVE_HIGH &pcfg_pull_none>;
+		};
+	};
+    */
+};
+
+
+// LCD generated by copilot
+// Should be cross compiled aside: sl698ph_720p.c
+/*
+&de {
+    status = "okay";
+    assigned-clocks = <&ccu CLK_DE>;
+    assigned-clock-rates = <297000000>;
+};
+
+&lcd0 {
+    status = "okay";
+    compatible = "sl698ph,720p";
+    interface-type = "dsi";
+    dsi-lanes = <2>;
+    dsi-format = <0>; // usually RGB888
+    dsi-eotp = <0>;
+    dsi-vc = <0>;
+    dsi-te = <0>;
+
+    width-mm = <51>;
+    height-mm = <86>;
+    display-timings {
+        native-mode = <&timing0>;
+        timing0: timing0 {
+            clock-frequency = <31000000>;
+            hactive = <480>;
+            vactive = <800>;
+            hback-porch = <44>;
+            hfront-porch = <(575 - 480 - 44 - 6)>; // calculate as needed
+            hsync-len = <6>;
+            vback-porch = <16>;
+            vfront-porch = <(896 - 800 - 16 - 1)>; // calculate as needed
+            vsync-len = <1>;
+            de-active = <1>;
+            pixelclk-active = <1>;
+        };
+    };
+
+    backlight = <&backlight>;
+    brightness-levels = <197>;
+    default-brightness-level = <197>;
+    contrast = <50>;
+    saturation = <57>;
+    hue = <50>;
+    gamma-enable = <0>;
+    bright-curve-enable = <0>;
+    cmap-enable = <0>;
+    deu-mode = <0>;
+    lcdgamma4iep = <22>;
+    smart-color = <90>;
+
+    enable-gpios = <&pio 1 6 GPIO_ACTIVE_HIGH>; // PB06
+    reset-gpios = <&pio 7 9 GPIO_ACTIVE_HIGH>;  // PH09
+    power-supply = <&reg_dc1sw>;
+    power-supply1 = <&reg_eldo2>;
+};
+
+&backlight {
+    status = "okay";
+    pwms = <&pwm 0 50000 1>; // channel 0, freq 50kHz, polarity 1
+    brightness-levels = <197>;
+    default-brightness-level = <197>;
+};
+*/
+
+/* 
+&csi {
+    status = "okay";
+    pinctrl-names = "default";
+    pinctrl-0 = <&csi_pins>;
+    port {
+        csi_ep: endpoint {
+            remote-endpoint = <&gc2145>;
+            bus-width = <4>;
+            data-shift = <0>;
+            hsync-active = <0>;
+            vsync-active = <0>;
+            pclk-sample = <1>;
+        };
+    };
+};
+
+&mipi_csi {
+    status = "okay";
+    pinctrl-names = "default";
+    pinctrl-0 = <&mipi_csi_pins>;
+    port {
+        mipi_csi_ep: endpoint {
+            remote-endpoint = <&gc2145>;
+            data-lanes = <1 2>;
+        };
+    };
+};
+
+gc2145: camera@3c {
+    compatible = "galaxycore,gc2145";
+    reg = <0x3c>;
+    clocks = <&clk_ext_camera>;
+    iovdd-supply = <&scmi_v3v3_sw>;
+    avdd-supply = <&scmi_v3v3_sw>;
+    dvdd-supply = <&scmi_v3v3_sw>;
+    powerdown-gpios = <&mcp23017 3 (GPIO_ACTIVE_LOW | GPIO_PUSH_PULL)>;
+    reset-gpios = <&mcp23017 4 (GPIO_ACTIVE_LOW | GPIO_PUSH_PULL)>;
+    status = "okay";
+
+    port {
+        gc2145_ep: endpoint {
+            remote-endpoint = <&mipid02_0>;
+            data-lanes = <1 2>;
+            link-frequencies = /bits/ 64 <120000000 192000000 240000000>;
+        };
+    };
+};
+ */

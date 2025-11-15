@@ -15,7 +15,7 @@ In fact we can boot an image from the usb drive and use this image to flash the 
 setenv bootargs root=/dev/sda1 rootwait console=ttyS0,115200
 usb start
 fatload usb 0:1 0x42000000 zImage
-fatload usb 0:1 0x43000000 sun8i-a33-zortrax-m200.dtb
+fatload usb 0:1 0x43000000 sun8i-a33-zortrax-m200plus.dtb
 bootz 0x42000000 - 0x43000000
 ```
 
@@ -24,8 +24,19 @@ Login and then dump the firmware on the USB board
 ```
 cd /mnt
 mkdir ext4disk
-mount /dev/sda2 ext4disk/
-dd if=/dev/mmcblk1 of=ext4disk/emmc.image bs=4M status=progress
+mount /dev/sda3 ext4disk/
+dd if=/dev/mmcblk2 of=ext4disk/emmc.image bs=4M status=progress
 sync
 poweroff
 ```
+
+```
+cd /mnt
+mkdir ext4disk
+mount /dev/sda2 ext4disk/
+dd if=/dev/mmcblk1 of=ext4disk/emmc.image bs=4M status=progress
+sync
+```
+
+mount /dev/mmcblk2p7 system/
+

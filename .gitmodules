@@ -10,3 +10,6 @@
 [submodule "submodules/MarlinZortraxM200"]
 	path = submodules/MarlinZortraxM200
 	url = https://github.com/Zortrax3D/MarlinZortraxM200.git
+[submodule "submodules/MarlinConfigurationsZortraxM200"]
+	path = submodules/MarlinConfigurationsZortraxM200
+	url = https://github.com/Zortrax3D/MarlinConfigurationsZortraxM200

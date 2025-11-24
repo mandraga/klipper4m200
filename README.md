@@ -33,16 +33,36 @@ Once in Linux, a set of scripts allows you to:
 
 ## At first boot
 
+Install the u-boot data on the emmc such as to automaticly boot from the USB drive.
+The original emmc is not that much altered, only the sunxi u-boot. You can resore it
+from the console or with a script writing the original u-boot/m200plus_sunxiuboot_env.img.backup file.
+
 ### Get the network working
+
+On version 2.1, Linux should detect the ethernet usb adapter on the USB port.
+On version 1.1, since USB0 was cut to break in, you need to connect some ethernet adapter to the usb port or hub before.
+Connect your printer to the network.
 
 ### Install klipper
 
+Follow this tutorial
+https://travis90x.altervista.org/armbian-first-boot-and-install-klipper/
+
 ### Flash the microcontroller and start Klipper
 
+Select STM32103CE, uart communication and 28Kb bootloader offset.
 
 ## Klipper config
 
-rpanfili has already configured klipper for zortrax M200 but for an SK200 MCU board and he changed the step motors. However the geometry and a lot of stock parameters are already in his configuration.
+rpanfili has already configured klipper for zortrax M200 but for an SK200 MCU board.
+However the geometry and a lot of stock parameters are already in his configuration.
 
 Zortrax has published a Marlin port for the M200.
-By looking at the commits, we can find the MCU pinouts to configure the klipper MCU firmware.
+By looking at the commits, we can find the MCU pinouts in "pins_ZORTRAX_M200.h" to configure the klipper MCU firmware.
+
+The configuration in this repo is the rpanfili one, updated for the Zortrax MCU board instead of the SK1.4.
+
+## Start printing
+
+If everything went fine, you can connect to Mainsail or Fluid web interfaces copy the klipper configuration and start printing.
+

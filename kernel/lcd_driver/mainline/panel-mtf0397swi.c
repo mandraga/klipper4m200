@@ -62,7 +62,7 @@
 #define HX8394_CMD_SETREADINDEX	  0xfe
 #define HX8394_CMD_GETSPIREAD	  0xff
 
-struct hx8394 {
+struct mtf0397swi {
 	struct device *dev;
 	struct drm_panel panel;
 	struct gpio_desc *reset_gpio;
@@ -70,23 +70,23 @@ struct hx8394 {
 	struct regulator *iovcc;
 	bool prepared;
 
-	const struct hx8394_panel_desc *desc;
+	const struct mtf0397swi_panel_desc *desc;
 };
 
-struct hx8394_panel_desc {
+struct mtf0397swi_panel_desc {
 	const struct drm_display_mode *mode;
 	unsigned int lanes;
 	unsigned long mode_flags;
 	enum mipi_dsi_pixel_format format;
-	int (*init_sequence)(struct hx8394 *ctx);
+	int (*init_sequence)(struct mtf0397swi *ctx);
 };
 
-static inline struct hx8394 *panel_to_hx8394(struct drm_panel *panel)
+static inline struct mtf0397swi *panel_to_mtf0397swi(struct drm_panel *ppanel)
 {
-	return container_of(panel, struct hx8394, panel);
+	return container_of(ppanel, struct mtf0397swi, panel);
 }
 
-static int mtf0397swi_init_sequence_dumped(struct hx8394 *ctx)
+static int mtf0397swi_init_sequence_dumped(struct mtf0397swi *ctx)
 {
 	struct mipi_dsi_device *dsi = to_mipi_dsi_device(ctx->dev);
 	mipi_dsi_dcs_write_seq(dsi, 0x00, 1, 0x00);
@@ -194,7 +194,7 @@ static int mtf0397swi_init_sequence_dumped(struct hx8394 *ctx)
 /*
  * mtf0397swi is based on OTM8019A but seems compatible with HX8394
  */
-static int mtf0397swi_init_sequence(struct hx8394 *ctx)
+static int mtf0397swi_init_sequence(struct mtf0397swi *ctx)
 {
 	struct mipi_dsi_device *dsi = to_mipi_dsi_device(ctx->dev);
 	mipi_dsi_dcs_write_seq(dsi, 0x00, 0x00);
@@ -374,7 +374,7 @@ static const struct drm_display_mode mtf0397swi_mode = {
 	.height_mm   = 86,
 };
 
-static const struct hx8394_panel_desc mtf0397swi_desc = {
+static const struct mtf0397swi_panel_desc mtf0397swi_desc = {
 	.mode = &mtf0397swi_mode,
 	.lanes = 2,
 	.mode_flags = MIPI_DSI_MODE_VIDEO | MIPI_DSI_MODE_VIDEO_BURST,
@@ -382,9 +382,9 @@ static const struct hx8394_panel_desc mtf0397swi_desc = {
 	.init_sequence = mtf0397swi_init_sequence_dumped,
 };
 
-static int hx8394_enable(struct drm_panel *panel)
+static int mtf0397swi_enable(struct drm_panel *panel)
 {
-	struct hx8394 *ctx = panel_to_hx8394(panel);
+	struct mtf0397swi *ctx = panel_to_mtf0397swi(panel);
 	struct mipi_dsi_device *dsi = to_mipi_dsi_device(ctx->dev);
 	int ret;
 
@@ -419,9 +419,9 @@ sleep_in:
 	return ret;
 }
 
-static int hx8394_disable(struct drm_panel *panel)
+static int mtf0397swi_disable(struct drm_panel *panel)
 {
-	struct hx8394 *ctx = panel_to_hx8394(panel);
+	struct mtf0397swi *ctx = panel_to_mtf0397swi(panel);
 	struct mipi_dsi_device *dsi = to_mipi_dsi_device(ctx->dev);
 	int ret;
 
@@ -436,9 +436,9 @@ static int hx8394_disable(struct drm_panel *panel)
 	return 0;
 }
 
-static int hx8394_unprepare(struct drm_panel *panel)
+static int mtf0397swi_unprepare(struct drm_panel *panel)
 {
-	struct hx8394 *ctx = panel_to_hx8394(panel);
+	struct mtf0397swi *ctx = panel_to_mtf0397swi(panel);
 
 	if (!ctx->prepared)
 		return 0;
@@ -453,9 +453,9 @@ static int hx8394_unprepare(struct drm_panel *panel)
 	return 0;
 }
 
-static int hx8394_prepare(struct drm_panel *panel)
+static int mtf0397swi_prepare(struct drm_panel *panel)
 {
-	struct hx8394 *ctx = panel_to_hx8394(panel);
+	struct mtf0397swi *ctx = panel_to_mtf0397swi(panel);
 	int ret;
 
 	if (ctx->prepared)
@@ -491,10 +491,10 @@ disable_vcc:
 	return ret;
 }
 
-static int hx8394_get_modes(struct drm_panel *panel,
+static int mtf0397swi_get_modes(struct drm_panel *panel,
 			    struct drm_connector *connector)
 {
-	struct hx8394 *ctx = panel_to_hx8394(panel);
+	struct mtf0397swi *ctx = panel_to_mtf0397swi(panel);
 	struct drm_display_mode *mode;
 
 	mode = drm_mode_duplicate(connector->dev, ctx->desc->mode);
@@ -515,18 +515,18 @@ static int hx8394_get_modes(struct drm_panel *panel,
 	return 1;
 }
 
-static const struct drm_panel_funcs hx8394_drm_funcs = {
-	.disable   = hx8394_disable,
-	.unprepare = hx8394_unprepare,
-	.prepare   = hx8394_prepare,
-	.enable	   = hx8394_enable,
-	.get_modes = hx8394_get_modes,
+static const struct drm_panel_funcs mtf0397swi_drm_funcs = {
+	.disable   = mtf0397swi_disable,
+	.unprepare = mtf0397swi_unprepare,
+	.prepare   = mtf0397swi_prepare,
+	.enable	   = mtf0397swi_enable,
+	.get_modes = mtf0397swi_get_modes,
 };
 
-static int hx8394_probe(struct mipi_dsi_device *dsi)
+static int mtf0397swi_probe(struct mipi_dsi_device *dsi)
 {
 	struct device *dev = &dsi->dev;
-	struct hx8394 *ctx;
+	struct mtf0397swi *ctx;
 	int ret;
 
 	ctx = devm_kzalloc(dev, sizeof(*ctx), GFP_KERNEL);
@@ -557,7 +557,7 @@ static int hx8394_probe(struct mipi_dsi_device *dsi)
 		return dev_err_probe(dev, PTR_ERR(ctx->iovcc),
 				     "Failed to request iovcc regulator\n");
 
-	drm_panel_init(&ctx->panel, dev, &hx8394_drm_funcs,
+	drm_panel_init(&ctx->panel, dev, &mtf0397swi_drm_funcs,
 		       DRM_MODE_CONNECTOR_DSI);
 
 	ret = drm_panel_of_backlight(&ctx->panel);
@@ -581,9 +581,9 @@ static int hx8394_probe(struct mipi_dsi_device *dsi)
 	return 0;
 }
 
-static void hx8394_shutdown(struct mipi_dsi_device *dsi)
+static void mtf0397swi_shutdown(struct mipi_dsi_device *dsi)
 {
-	struct hx8394 *ctx = mipi_dsi_get_drvdata(dsi);
+	struct mtf0397swi *ctx = mipi_dsi_get_drvdata(dsi);
 	int ret;
 
 	ret = drm_panel_disable(&ctx->panel);
@@ -595,12 +595,12 @@ static void hx8394_shutdown(struct mipi_dsi_device *dsi)
 		dev_err(&dsi->dev, "Failed to unprepare panel: %d\n", ret);
 }
 
-static void hx8394_remove(struct mipi_dsi_device *dsi)
+static void mtf0397swi_remove(struct mipi_dsi_device *dsi)
 {
-	struct hx8394 *ctx = mipi_dsi_get_drvdata(dsi);
+	struct mtf0397swi *ctx = mipi_dsi_get_drvdata(dsi);
 	int ret;
 
-	hx8394_shutdown(dsi);
+	mtf0397swi_shutdown(dsi);
 
 	ret = mipi_dsi_detach(dsi);
 	if (ret < 0)
@@ -609,22 +609,22 @@ static void hx8394_remove(struct mipi_dsi_device *dsi)
 	drm_panel_remove(&ctx->panel);
 }
 
-static const struct of_device_id hx8394_of_match[] = {
+static const struct of_device_id mtf0397swi_of_match[] = {
 	{ .compatible = "microtech,mtf0397swi-06", .data = &mtf0397swi_desc },
 	{ /* sentinel */ }
 };
-MODULE_DEVICE_TABLE(of, hx8394_of_match);
+MODULE_DEVICE_TABLE(of, mtf0397swi_of_match);
 
-static struct mipi_dsi_driver hx8394_driver = {
-	.probe	= hx8394_probe,
-	.remove = hx8394_remove,
-	.shutdown = hx8394_shutdown,
+static struct mipi_dsi_driver mtf0397swi_driver = {
+	.probe	= mtf0397swi_probe,
+	.remove = mtf0397swi_remove,
+	.shutdown = mtf0397swi_shutdown,
 	.driver = {
-		.name = "panel_mtf0397swi",
-		.of_match_table = hx8394_of_match,
+		.name = "panel-mtf0397swi",
+		.of_match_table = mtf0397swi_of_match,
 	},
 };
-module_mipi_dsi_driver(hx8394_driver);
+module_mipi_dsi_driver(mtf0397swi_driver);
 
 MODULE_AUTHOR("Patrick Areny <pataraign@gmail.com>");
 MODULE_DESCRIPTION("DRM driver for Microtech Technology MTF0397SWI-06 MIPI DSI panels");

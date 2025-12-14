@@ -13,3 +13,6 @@
 [submodule "submodules/MarlinConfigurationsZortraxM200"]
 	path = submodules/MarlinConfigurationsZortraxM200
 	url = https://github.com/Zortrax3D/MarlinConfigurationsZortraxM200
+[submodule "submodules/katapult"]
+	path = submodules/katapult
+	url = https://github.com/Arksine/katapult.git

@@ -43,7 +43,7 @@ Select
 And then select (Enable extra low-level configuration options):
 Micro-controller Architecture: STM32
 Processor model:               STM32F103
-Bootloader at:                 32K
+Bootloader at:                 8K for katapult, because I do not know the zortrax bootloader at the moment, it would be katapult. 32K if it was the zortrax bootloader.
 Communication interface:       USART2 on PA3 PA2
 Frequency                      8Mhz
 
@@ -124,6 +124,42 @@ RESET; VSS/GND; PA13;     PA14;        PA10;       PA9;      BOOT0; 3.3V
 7 VSS/GND
 8 RESET
 
+### Katapult configuration
+
+We replace the vendor bootloader with a katapult one using the debug port.
+
+make menuconfig
+```
+Micro-controller architecture: STM32F13
+No deployment application
+Clock reference: 8Mhz crystal
+Communicaiton iunterface: USART2 PA3/PA2
+Application start offset 8KB offset.
+//Enable bootloader on button state: PD4 RESET
+```
+
+make
+
+It generates 
+```
+out/katapult.bin
+```
+That's what we flash as bootloader.
+
+Using the project's flashtool 
+```
+sudo python3 flashtool.py -d /dev/ttyUSB0 -b 115200 -f out/katapult.bin
+```
+or
+
+```
+sudo stm32flash -b 115200 -w out/katapult.bin /dev/ttyUSB0
+```
+
 ### Programming the firmware on the machine:
 
-
+```
+sudo apt update
+sudo apt install python3-serial
+python3 flashtool.py -d <serial device> -b <baud_rate> -f ~/klipper/out/klipper.bin
+```

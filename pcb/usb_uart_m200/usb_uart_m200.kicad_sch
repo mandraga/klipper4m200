@@ -2873,6 +2873,181 @@
 				)
 			)
 		)
+		(symbol "Regulator_Linear:MIC5317-3.3xM5"
+			(pin_names
+				(offset 0.254)
+			)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "U"
+				(at -6.35 6.35 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" "MIC5317-3.3xM5"
+				(at 0 6.35 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(justify left)
+				)
+			)
+			(property "Footprint" "Package_TO_SOT_SMD:SOT-23-5"
+				(at 0 8.89 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Datasheet" "https://ww1.microchip.com/downloads/aemDocuments/documents/OTH/ProductDocuments/DataSheets/MIC5317-High-Performance-Single-150mA-LDO-DS20006195B.pdf"
+				(at -7.62 20.32 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Description" "150mA Low-dropout Voltage Regulator, Vout 3.3V, Vin up to 6V, SOT23-5"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_keywords" "LDO voltage regulator"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_fp_filters" "SOT?23*"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(symbol "MIC5317-3.3xM5_0_1"
+				(rectangle
+					(start -5.08 4.445)
+					(end 5.08 -5.08)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type background)
+					)
+				)
+			)
+			(symbol "MIC5317-3.3xM5_1_1"
+				(pin power_in line
+					(at -7.62 2.54 0)
+					(length 2.54)
+					(name "VIN"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin power_in line
+					(at 0 -7.62 90)
+					(length 2.54)
+					(name "GND"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin input line
+					(at -7.62 0 0)
+					(length 2.54)
+					(name "EN"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "3"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin no_connect line
+					(at 5.08 0 180)
+					(length 2.54) hide
+					(name "NC"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "4"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin power_out line
+					(at 7.62 2.54 180)
+					(length 2.54)
+					(name "VOUT"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "5"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+		)
 		(symbol "power:GND"
 			(power)
 			(pin_numbers hide)
@@ -2971,10 +3146,28 @@
 		)
 	)
 	(junction
+		(at 118.11 46.99)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "076ef2a0-d131-4c55-aa77-de474b6844aa")
+	)
+	(junction
+		(at 187.96 39.37)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "0c433e76-19d4-44f0-8b69-95d60a2c5b0a")
+	)
+	(junction
 		(at 147.32 29.21)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "2828979f-29a4-4161-aa96-3728cf501817")
+	)
+	(junction
+		(at 133.35 29.21)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "5b72db64-5f22-4b96-a06b-2f8bc8aa236e")
 	)
 	(junction
 		(at 54.61 83.82)
@@ -2983,10 +3176,10 @@
 		(uuid "62f69ba3-6d24-4c57-a965-d136a60ed141")
 	)
 	(junction
-		(at 187.96 39.37)
+		(at 99.06 29.21)
 		(diameter 0)
 		(color 0 0 0 0)
-		(uuid "719284dc-2199-4278-9ca6-88ac2bf3a9cf")
+		(uuid "6a6ab714-230d-4dbf-8f19-6eefcff5c81c")
 	)
 	(junction
 		(at 212.09 88.9)
@@ -3013,16 +3206,10 @@
 		(uuid "a61c8656-1c32-45f1-bbbd-2d8f0bcdb8fe")
 	)
 	(junction
-		(at 99.06 29.21)
+		(at 99.06 31.75)
 		(diameter 0)
 		(color 0 0 0 0)
-		(uuid "aafcddfc-2645-457b-a0f7-99346d2052b5")
-	)
-	(junction
-		(at 133.35 29.21)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "b0c13716-562e-4f35-ac96-3bc8739239ad")
+		(uuid "ae859304-4b32-4ef5-8ef3-9d1508a8e3eb")
 	)
 	(junction
 		(at 99.06 83.82)
@@ -3136,7 +3323,17 @@
 	)
 	(wire
 		(pts
-			(xy 99.06 29.21) (xy 99.06 36.83)
+			(xy 223.52 109.22) (xy 223.52 111.76)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "075a31df-9683-437e-bb85-625a272818bc")
+	)
+	(wire
+		(pts
+			(xy 99.06 29.21) (xy 99.06 31.75)
 		)
 		(stroke
 			(width 0)
@@ -3176,7 +3373,7 @@
 	)
 	(wire
 		(pts
-			(xy 187.96 39.37) (xy 187.96 44.45)
+			(xy 187.96 29.21) (xy 187.96 39.37)
 		)
 		(stroke
 			(width 0)
@@ -3193,6 +3390,16 @@
 			(type default)
 		)
 		(uuid "19728211-9cb1-4ab1-9ddc-d4048907d02e")
+	)
+	(wire
+		(pts
+			(xy 223.52 124.46) (xy 223.52 119.38)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "19df284c-2d29-4171-857e-299ddd81b09f")
 	)
 	(wire
 		(pts
@@ -3226,6 +3433,16 @@
 	)
 	(wire
 		(pts
+			(xy 99.06 31.75) (xy 110.49 31.75)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "2d0a3b93-0429-4519-b1a2-26975bb8dbce")
+	)
+	(wire
+		(pts
 			(xy 46.99 83.82) (xy 54.61 83.82)
 		)
 		(stroke
@@ -3236,7 +3453,7 @@
 	)
 	(wire
 		(pts
-			(xy 99.06 46.99) (xy 133.35 46.99)
+			(xy 99.06 46.99) (xy 118.11 46.99)
 		)
 		(stroke
 			(width 0)
@@ -3256,6 +3473,16 @@
 	)
 	(wire
 		(pts
+			(xy 187.96 39.37) (xy 190.5 39.37)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "34b6c691-e36c-4aa9-af19-3b924b68118a")
+	)
+	(wire
+		(pts
 			(xy 203.2 62.23) (xy 214.63 62.23)
 		)
 		(stroke
@@ -3263,6 +3490,16 @@
 			(type default)
 		)
 		(uuid "38c953f4-dbfa-4a7f-898c-1047d8d9148d")
+	)
+	(wire
+		(pts
+			(xy 118.11 46.99) (xy 133.35 46.99)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "39f594bc-7fdc-45c6-9277-239249c05576")
 	)
 	(wire
 		(pts
@@ -3356,16 +3593,6 @@
 	)
 	(wire
 		(pts
-			(xy 99.06 29.21) (xy 133.35 29.21)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "523631a9-507f-4150-99e7-7f5ada91db11")
-	)
-	(wire
-		(pts
 			(xy 190.5 88.9) (xy 193.04 88.9)
 		)
 		(stroke
@@ -3376,7 +3603,7 @@
 	)
 	(wire
 		(pts
-			(xy 194.31 124.46) (xy 205.74 124.46)
+			(xy 194.31 124.46) (xy 223.52 124.46)
 		)
 		(stroke
 			(width 0)
@@ -3393,6 +3620,16 @@
 			(type default)
 		)
 		(uuid "5c008dcf-919c-4572-b0d6-e2b5778ec818")
+	)
+	(wire
+		(pts
+			(xy 99.06 31.75) (xy 99.06 36.83)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "5f7800d6-4006-4f02-ac71-60939d8213d1")
 	)
 	(wire
 		(pts
@@ -3466,16 +3703,6 @@
 	)
 	(wire
 		(pts
-			(xy 187.96 29.21) (xy 187.96 39.37)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "8a0f89ff-a5a8-4802-bf23-0126a89f0c51")
-	)
-	(wire
-		(pts
 			(xy 127 68.58) (xy 137.16 68.58)
 		)
 		(stroke
@@ -3546,6 +3773,16 @@
 	)
 	(wire
 		(pts
+			(xy 118.11 39.37) (xy 118.11 46.99)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "96927320-f7c0-4c02-b6f9-4200652c2cd6")
+	)
+	(wire
+		(pts
 			(xy 88.9 83.82) (xy 88.9 78.74)
 		)
 		(stroke
@@ -3553,6 +3790,16 @@
 			(type default)
 		)
 		(uuid "96e46cb3-43ca-442e-bab0-765c09f8e6d8")
+	)
+	(wire
+		(pts
+			(xy 187.96 39.37) (xy 187.96 44.45)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "9a4eedfb-7595-46e0-a832-4bae33df6d22")
 	)
 	(wire
 		(pts
@@ -3596,6 +3843,16 @@
 	)
 	(wire
 		(pts
+			(xy 125.73 29.21) (xy 133.35 29.21)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "a66607b6-4c23-48f9-b245-6fb6d6a1c8cc")
+	)
+	(wire
+		(pts
 			(xy 46.99 82.55) (xy 46.99 83.82)
 		)
 		(stroke
@@ -3613,16 +3870,6 @@
 			(type default)
 		)
 		(uuid "ad250316-e310-4e48-90e5-30c6647dba17")
-	)
-	(wire
-		(pts
-			(xy 187.96 39.37) (xy 190.5 39.37)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "ad7bfb17-e0e7-485f-b435-a87ff5845bbe")
 	)
 	(wire
 		(pts
@@ -3773,6 +4020,16 @@
 			(type default)
 		)
 		(uuid "e0f3fa86-4d54-40a4-bf18-b7d45faf55c4")
+	)
+	(wire
+		(pts
+			(xy 99.06 29.21) (xy 110.49 29.21)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e8b02d5e-742d-411b-8b11-26201b62f230")
 	)
 	(wire
 		(pts
@@ -3994,16 +4251,6 @@
 		)
 		(uuid "43e3d1fe-a669-4dc7-839c-d95e6afa2c9b")
 	)
-	(label "3v3"
-		(at 187.96 35.56 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "540c561f-96bf-450d-a53b-348d734b1779")
-	)
 	(label "DP"
 		(at 73.66 62.23 0)
 		(effects
@@ -4023,6 +4270,16 @@
 			(justify left bottom)
 		)
 		(uuid "6230f82a-145f-499e-901a-b717028663b6")
+	)
+	(label "3v3"
+		(at 187.96 29.21 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "66ca7c6a-8df6-4eeb-a735-e301730e2f70")
 	)
 	(label "BOOT0"
 		(at 205.74 124.46 0)
@@ -4053,6 +4310,16 @@
 			(justify left bottom)
 		)
 		(uuid "77dde4ce-2e36-4870-a2fd-dc55e2bbffa6")
+	)
+	(label "3v3"
+		(at 223.52 109.22 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "a3b50999-8fd8-4410-ae42-d42466f7753f")
 	)
 	(label "D_ESDN"
 		(at 137.16 71.12 180)
@@ -4165,6 +4432,92 @@
 			(project "usb_uart_m200"
 				(path "/76551221-2b77-4d0f-8229-499eb3cfb067"
 					(reference "#PWR03")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Regulator_Linear:MIC5317-3.3xM5")
+		(at 118.11 31.75 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "181add40-7223-47ee-9e48-a34f8fd1ed52")
+		(property "Reference" "U2"
+			(at 118.11 22.86 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "MIC5317-3.3xM5"
+			(at 118.11 25.4 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Package_TO_SOT_SMD:SOT-23-5"
+			(at 118.11 22.86 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "https://ww1.microchip.com/downloads/aemDocuments/documents/OTH/ProductDocuments/DataSheets/MIC5317-High-Performance-Single-150mA-LDO-DS20006195B.pdf"
+			(at 110.49 11.43 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "150mA Low-dropout Voltage Regulator, Vout 3.3V, Vin up to 6V, SOT23-5"
+			(at 118.11 31.75 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "farnell" "2920683"
+			(at 118.11 31.75 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "98ac1410-d34c-4515-b3b1-0be5c9aa9b7b")
+		)
+		(pin "1"
+			(uuid "666b9844-2ffa-4b21-a5a6-009953e1ad84")
+		)
+		(pin "3"
+			(uuid "3af4f722-d416-4919-b874-08b28b818f80")
+		)
+		(pin "5"
+			(uuid "962d21a8-19f6-4f00-93a3-b5620522958a")
+		)
+		(pin "4"
+			(uuid "9769e06f-41e1-449c-989a-50021c590598")
+		)
+		(instances
+			(project ""
+				(path "/76551221-2b77-4d0f-8229-499eb3cfb067"
+					(reference "U2")
 					(unit 1)
 				)
 			)
@@ -4531,7 +4884,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "5.1k"
+		(property "Value" "22k"
 			(at 82.55 76.1999 0)
 			(effects
 				(font
@@ -4567,6 +4920,15 @@
 				(hide yes)
 			)
 		)
+		(property "farnell" "2073691"
+			(at 80.01 74.93 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "2"
 			(uuid "c663f58f-fa40-4435-9cb6-ef2661fe1725")
 		)
@@ -4577,6 +4939,85 @@
 			(project ""
 				(path "/76551221-2b77-4d0f-8229-499eb3cfb067"
 					(reference "R1")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:R")
+		(at 223.52 115.57 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "6db09dc8-8478-4843-adb0-b66d2be521a3")
+		(property "Reference" "R3"
+			(at 226.06 114.2999 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "10k"
+			(at 226.06 116.8399 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_0805_2012Metric"
+			(at 221.742 115.57 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 223.52 115.57 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Resistor"
+			(at 223.52 115.57 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "farnell" ""
+			(at 223.52 115.57 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "fb0aa737-9f93-4657-abc0-778929a1e24a")
+		)
+		(pin "2"
+			(uuid "f1b62a9f-fa23-4034-8e3c-84a08bf1bd26")
+		)
+		(instances
+			(project "usb_uart_m200"
+				(path "/76551221-2b77-4d0f-8229-499eb3cfb067"
+					(reference "R3")
 					(unit 1)
 				)
 			)
@@ -4704,6 +5145,15 @@
 				(hide yes)
 			)
 		)
+		(property "farnell" "1269406"
+			(at 121.92 68.58 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "3"
 			(uuid "da5e9100-c790-450a-a3d9-c62733de8cc4")
 		)
@@ -4776,6 +5226,15 @@
 			)
 		)
 		(property "Description" "Generic connector, single row, 01x08, script generated"
+			(at 189.23 129.54 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "farnell" "3729173"
 			(at 189.23 129.54 0)
 			(effects
 				(font
@@ -4872,6 +5331,15 @@
 				(hide yes)
 			)
 		)
+		(property "farnell" "9733051"
+			(at 245.11 54.61 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "af85a98b-a41b-403e-9544-2be114f77a3e")
 		)
@@ -4906,7 +5374,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "5.1k"
+		(property "Value" "22k"
 			(at 91.44 76.1999 0)
 			(effects
 				(font
@@ -4934,6 +5402,15 @@
 			)
 		)
 		(property "Description" "Resistor"
+			(at 88.9 74.93 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "farnell" "2073691"
 			(at 88.9 74.93 0)
 			(effects
 				(font
@@ -5002,6 +5479,15 @@
 			)
 		)
 		(property "Description" "USB 2.0-only Type-C Plug connector"
+			(at 54.61 59.69 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "farnell" "3777659"
 			(at 54.61 59.69 0)
 			(effects
 				(font
@@ -5334,6 +5820,15 @@
 				(hide yes)
 			)
 		)
+		(property "farnell" "2452830"
+			(at 236.22 82.55 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "L1.1"
 			(uuid "64b480b6-9ff4-4ec9-9857-983a54d2db7a")
 		)
@@ -5530,6 +6025,15 @@
 			)
 		)
 		(property "Description" "USB-UART LP Bridge Controller, full speed 12Mbps, +1.71V to 5.5V VDD, UART/RS232/RS422, SSOP-28"
+			(at 190.5 64.77 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "farnell" "2772892"
 			(at 190.5 64.77 0)
 			(effects
 				(font

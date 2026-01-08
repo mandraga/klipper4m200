@@ -1843,6 +1843,15 @@
 				(hide yes)
 			)
 		)
+		(property "farnell" "2313729"
+			(at 175.26 85.09 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "3"
 			(uuid "b5b46690-56aa-4199-b34b-069cf9861acf")
 		)
@@ -1918,6 +1927,15 @@
 			)
 		)
 		(property "Description" "USB 2.0-only Type-C Plug connector"
+			(at 109.22 87.63 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "farnell" "3777659"
 			(at 109.22 87.63 0)
 			(effects
 				(font

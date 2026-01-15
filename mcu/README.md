@@ -27,7 +27,7 @@ board                       = genericSTM32F103VC
 board_build.variant         = MARLIN_F103Vx
 build_flags                 = ${stm32_variant.build_flags} -DDEBUG_LEVEL=0
 monitor_speed               = 115200
-board_build.offset          = 0x8000
+board_build.offset          = 0x8000       (32768 bytes, 32K offset)
 board_upload.offset_address = 0x08008000
 ```
 
@@ -43,10 +43,9 @@ Select
 And then select (Enable extra low-level configuration options):
 Micro-controller Architecture: STM32
 Processor model:               STM32F103
-Bootloader at:                 8K for katapult, because I do not know the zortrax bootloader at the moment, it would be katapult. 32K if it was the zortrax bootloader.
+Bootloader at:                 8K for katapult, 32K if it was the zortrax bootloader.
 Communication interface:       USART2 on PA3 PA2
 Frequency                      8Mhz
-
 
 It will build the firmware.
 
@@ -58,10 +57,6 @@ The configuration can be deduced from the Zortrax Marlin port. See in "pins_ZORT
 The other part of the work for the printer configuration has been made by rpanfili in his sk200 retrofit.
 He used an sk200 and he changed the stepper motors and mybe the extruder but the other parts are the same.
 
-
-
-
-
 #### Serial communication
 
 To connect serial user interface (OctoPrint or other using Raspberry PI or UART converter and PC) you can use debug header on the motherboard. You will need to solder connector by yourself.
@@ -69,15 +64,14 @@ To connect serial user interface (OctoPrint or other using Raspberry PI or UART 
 Pinout of the **DEBUG** header described below:
 -	NRST
 -	**GND <--- connect to GND on host**
--	TMS
--	TCK
+-	TMS/NC
+-	TCK/NC
 -	**TX <--- connect to RX on host**
 -	**RX <--- connect to TX on host**
--	NC
+-	BOOT0
 -	VCC (marked on mainboard as 3.3V)
 
 **Caution**: if you are going to use debugger (ST-Link), know that any attempt to read or write from/to flash memory will result in mass erase of the flash. It will erase the the bootloader and all the settings, including lifetimer, serial number and hardware version, as flash memory of chip is read out protection enabled at production! If that happens you won't be able to use official firmware anymore!
-
 
 ### Pins
 
@@ -126,7 +120,7 @@ RESET; VSS/GND; PA13;     PA14;        PA10;       PA9;      BOOT0; 3.3V
 
 ### Katapult configuration
 
-We replace the vendor bootloader with a katapult one using the debug port.
+If you replace the vendor bootloader with a katapult one using the debug port.
 
 make menuconfig
 ```
@@ -146,7 +140,7 @@ out/katapult.bin
 ```
 That's what we flash as bootloader.
 
-Using the project's flashtool 
+Using the Katapult's flashtool on the debug header.
 ```
 sudo python3 flashtool.py -d /dev/ttyUSB0 -b 115200 -f out/katapult.bin
 ```
@@ -155,6 +149,10 @@ or
 ```
 sudo stm32flash -b 115200 -w out/katapult.bin /dev/ttyUSB0
 ```
+
+### Some issue with keeping the bootloader active
+
+https://github.com/Arksine/katapult/issues/135
 
 ### Programming the firmware on the machine:
 

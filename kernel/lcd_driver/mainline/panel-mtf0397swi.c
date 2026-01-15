@@ -18,6 +18,7 @@
 #include <linux/mod_devicetable.h>
 #include <linux/module.h>
 #include <linux/of.h>
+#include <linux/of_device.h>
 #include <linux/regulator/consumer.h>
 
 #include <video/mipi_display.h>
@@ -86,13 +87,16 @@ static inline struct mtf0397swi *panel_to_mtf0397swi(struct drm_panel *ppanel)
 	return container_of(ppanel, struct mtf0397swi, panel);
 }
 
-static int mtf0397swi_init_sequence_dumped(struct mtf0397swi *ctx)
+static int mtf0397swi_init_sequence(struct mtf0397swi *ctx)
 {
 	struct mipi_dsi_device *dsi = to_mipi_dsi_device(ctx->dev);
-	mipi_dsi_dcs_write_seq(dsi, 0x00, 1, 0x00);
+	mipi_dsi_dcs_write_seq(dsi, 0x00, 0x00);
 	mipi_dsi_dcs_write_seq(dsi, 0xFF, 0x80, 0x19, 0x01);
+	dev_info(ctx->dev, "sent 0xFF, 0x80, 0x19, 0x01\n");
 	mipi_dsi_dcs_write_seq(dsi, 0x00, 0x80);
+	dev_info(ctx->dev, "sent 0x00, 0x80\n");
 	mipi_dsi_dcs_write_seq(dsi, 0xFF, 0x80, 0x19);
+	dev_info(ctx->dev, "sent  0xFF, 0x80, 0x19\n");
 	mipi_dsi_dcs_write_seq(dsi, 0x00, 0x8A);
 	mipi_dsi_dcs_write_seq(dsi, 0xC4, 0x40);
 	mipi_dsi_dcs_write_seq(dsi, 0x00, 0xA6);
@@ -192,8 +196,7 @@ static int mtf0397swi_init_sequence_dumped(struct mtf0397swi *ctx)
 }
 
 /*
- * mtf0397swi is based on OTM8019A but seems compatible with HX8394
- */
+Not the same as in lcd.ko
 static int mtf0397swi_init_sequence(struct mtf0397swi *ctx)
 {
 	struct mipi_dsi_device *dsi = to_mipi_dsi_device(ctx->dev);
@@ -357,7 +360,7 @@ static int mtf0397swi_init_sequence(struct mtf0397swi *ctx)
 	mipi_dsi_dcs_write_seq(dsi, 0x29, 0x00);
 	msleep(100);
 	return 0;
-}
+}*/
 
 static const struct drm_display_mode mtf0397swi_mode = {
 	.hdisplay    = 480,
@@ -374,12 +377,13 @@ static const struct drm_display_mode mtf0397swi_mode = {
 	.height_mm   = 86,
 };
 
+// MIPI_DSI_FMT_RGB888 for 16.7M colors
 static const struct mtf0397swi_panel_desc mtf0397swi_desc = {
 	.mode = &mtf0397swi_mode,
 	.lanes = 2,
 	.mode_flags = MIPI_DSI_MODE_VIDEO | MIPI_DSI_MODE_VIDEO_BURST,
 	.format = MIPI_DSI_FMT_RGB888,
-	.init_sequence = mtf0397swi_init_sequence_dumped,
+	.init_sequence = mtf0397swi_init_sequence,
 };
 
 static int mtf0397swi_enable(struct drm_panel *panel)
@@ -461,11 +465,6 @@ static int mtf0397swi_prepare(struct drm_panel *panel)
 	if (ctx->prepared)
 		return 0;
 
-	gpiod_set_value_cansleep(ctx->reset_gpio, 0);
-	msleep(50);
-	gpiod_set_value_cansleep(ctx->reset_gpio, 1);
-	msleep(20);
-
 	ret = regulator_enable(ctx->vcc);
 	if (ret) {
 		dev_err(ctx->dev, "Failed to enable vcc supply: %d\n", ret);
@@ -477,7 +476,9 @@ static int mtf0397swi_prepare(struct drm_panel *panel)
 		dev_err(ctx->dev, "Failed to enable iovcc supply: %d\n", ret);
 		goto disable_vcc;
 	}
-
+	msleep(100);
+	gpiod_set_value_cansleep(ctx->reset_gpio, 1);
+	msleep(50);
 	gpiod_set_value_cansleep(ctx->reset_gpio, 0);
 	msleep(200);
 
@@ -546,6 +547,8 @@ static int mtf0397swi_probe(struct mipi_dsi_device *dsi)
 	dsi->mode_flags = ctx->desc->mode_flags;
 	dsi->format = ctx->desc->format;
 	dsi->lanes = ctx->desc->lanes;
+	dev_info(dev, "DSI format: 0x%x, lanes: %u, mode_flags: 0x%lx\n",
+		 dsi->format, dsi->lanes, dsi->mode_flags);
 
 	ctx->vcc = devm_regulator_get(dev, "vcc");
 	if (IS_ERR(ctx->vcc))
@@ -574,6 +577,11 @@ static int mtf0397swi_probe(struct mipi_dsi_device *dsi)
 	}
 
 	dev_dbg(dev, "%ux%u@%u %ubpp dsi %udl - ready\n",
+		ctx->desc->mode->hdisplay, ctx->desc->mode->vdisplay,
+		drm_mode_vrefresh(ctx->desc->mode),
+		mipi_dsi_pixel_format_to_bpp(dsi->format), dsi->lanes);
+	
+	dev_info(dev, "%ux%u@%u %ubpp dsi %u lanes - ready\n",
 		ctx->desc->mode->hdisplay, ctx->desc->mode->vdisplay,
 		drm_mode_vrefresh(ctx->desc->mode),
 		mipi_dsi_pixel_format_to_bpp(dsi->format), dsi->lanes);

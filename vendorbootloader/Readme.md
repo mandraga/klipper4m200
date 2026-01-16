@@ -1,4 +1,5 @@
 # Documentation from spazzymoto on the EEvblog
+
 He disassembled the apk containing the bootloader.
 
 # Firmware Flashing Technical Breakdown (Bootloader V2)
@@ -9,23 +10,27 @@ This document details the low-level mechanism used to flash `firmware.bin` to th
 The flashing process uses a custom "Bootloader V2" protocol over a serial connection. The application acts as the client, sending fixed-size frames to the printer (bootloader).
 
 ## 2. Firmware File Preparation
+
 Before transmission, the application processes `firmware.bin`:
 - **Skip Header**: The first **512 bytes** of the file are skipped (ignored).
 - **Chunking**: The remaining data is split into chunks of **4080 bytes**.
 
 ## 3. Protocol Transport Layer
+
 Communication relies on fixed-size frames sent over `ISerialConnection`.
 
-### Frame Structure
+### A frame Structure
 **Total Size**: 4106 bytes
 **Endianness**: Little Endian (LSB first)
+
+See in BootloaderV2Command.java
 
 | Offset | Size | Field | Description |
 | :--- | :--- | :--- | :--- |
 | 0 | 4 | Magic | `ZBOT` (`5A 42 4F 54`) |
 | 4 | 1 | Command ID | Opcode (see below) |
-| 5 | 1 | Is Response | `0` = Command, `1` = Response |
-| 6 | 2 | Data Size | Header payload size (Often `0` in client commands) |
+//| 5 | 1 | Is Response | `0` = Command, `1` = Response |
+| 8 | 4 | Data Size | Header payload size (Often `0` in client commands) |
 | 8 | 4096 | Payload | Command-specific data |
 | 4104 | 2 | CRC | CRC16 checksum of bytes 0-4103 |
 
@@ -46,6 +51,7 @@ Defined in `BootloaderV2CommandType`.
 | `0x06` | `CMD_END_FLASH` | Finalizes the flashing process. |
 
 ## 5. Packet Payloads
+
 Payloads start at offset 8 within the frame.
 
 ### `CMD_START_FLASH` (ID 0x03)
@@ -123,4 +129,10 @@ cat /dev/ttyS2
 
 ```
 microcom -p /dev/ttyS2 -s 115200
+```
+
+### Programming command
+
+```
+./vendor_protocol_programing_tool ./klipper/out/klipper.bin /dev/ttyS2
 ```

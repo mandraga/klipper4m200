@@ -88,8 +88,8 @@ SLP
 RX                 RX
 TX                 TX
 
-Android pins:
-
+MCU   Android pins
+-------------------------------------------------------------------------------------------------
 STM   is PD2 TIM3_ETR/UART5_RX/SDIO_CMD     gpio_pin_5 = port:PC01<1><default><default><0>  MISO
 MTS   is PD1 OSC_OUT/FSMC_D3/CAN_TX         gpio_pin_6 = port:PC00<1><default><default><0>  MOSI
 BOOT  is PD3 USART2_CTS                     gpio_pin_7 = port:PC02<1><default><default><1>  CLK

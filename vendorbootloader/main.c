@@ -28,15 +28,26 @@
 #define CMD_FLASH       0x04
 #define CMD_REBOOT      0x05
 #define CMD_END_FLASH   0x06
-
+    
 #define ZOS_BOOT_STATE_IDLE      0
 #define ZOS_BOOT_STATE_FAILSAFE  1
 #define ZOS_BOOT_STATE_FLASHING  2
 
+// Reset pin, named LED in the java code PF1 -> port F (index 5): 5*32 + 1 = 161 LED(161),
+// found in gpio_manager_script.sh
+#define RESET_PIN "/sys/devices/platform/leds/leds/nrst:usr/brightness"
+// But it also could be GPIO6 PC01 according to the java code
+//#define RESET_PIN "/sys/devices/platform/leds/leds/gpio6:usr/brightness"
+
+// Boot found in gpio_manager_script.sh
+#define BOOT_PIN "/sys/devices/platform/leds/leds/boot:usr/brightness"
+// But it could also be GPIOS PC03 according to the java code
+//#define BOOT_PIN "/sys/devices/platform/leds/leds/gpios:usr/brightness"
+
 void set_reset_pin(int value)
 {
     // Use label "mcunrst:led1:usr" for NRST (PF01)
-    FILE *f = fopen("/sys/devices/platform/leds/leds/mcunrst:led1:usr/brightness", "w");
+    FILE *f = fopen(RESET_PIN, "w");
     if (f) {
         fprintf(f, "%d\n", value ? 1 : 0);
         fclose(f);
@@ -46,9 +57,9 @@ void set_reset_pin(int value)
 void set_boot_pin(int value)
 {
     // Use label "mcuboot:led1:usr" for BOOT (PC02)
-    FILE *f = fopen("/sys/devices/platform/leds/leds/mcuboot:led1:usr/brightness", "w");
+    FILE *f = fopen(BOOT_PIN, "w");
     if (f) {
-        fprintf(f, "%d\n", value ? 1 : 0);
+        fprintf(f, "%d\n", !value ? 1 : 0);
         fclose(f);
     }
 }
@@ -56,23 +67,22 @@ void set_boot_pin(int value)
 void reset_mcu()
 {
     set_reset_pin(1);
-    usleep(1500000); // 15000ms
+    usleep(1000000); // 1000ms
     set_reset_pin(0);
-    usleep(200000); // 200ms
 }
 
-void enter_boot_mode()
+void enter_programming_mode()
 {
     // Configure GPIOs for bootloader mode:
-    set_boot_pin(0); // Programming mode On
+    set_boot_pin(1); // Programming mode On
     reset_mcu();
 }
 
 
-void exit_boot_mode()
+void exit_programming_mode()
 {
     // Configure GPIOs for bootloader mode:
-    set_boot_pin(1); // Programming mode Off
+    set_boot_pin(0); // Programming mode Off
     reset_mcu();
 }
 
@@ -219,28 +229,45 @@ static int read_exact(int fd, void *buf, size_t len, int timeout_ms)
     return 0;
 }
 
+void clear_message(uint8_t *pframe)
+{
+    memset(pframe, 0, sizeof(uint8_t) * FRAME_SIZE);
+    pframe[0] = MAGIC0;
+    pframe[1] = MAGIC1;
+    pframe[2] = MAGIC2;
+    pframe[3] = MAGIC3;
+}
+
+void prepare_frame(uint8_t *pframe)
+{
+    int crc = calculateCRC16(0xFFFF, pframe, SEND_BUFFER_BYTE_INDEX_CRC);
+    pframe[SEND_BUFFER_BYTE_INDEX_CRC] = crc & 0xFF;
+    pframe[SEND_BUFFER_BYTE_INDEX_CRC + 1] = (crc & 0xFF00) >> 8;
+    printf("Frame last two bytes (CRC): 0x%02X 0x%02X\n", pframe[FRAME_SIZE - 2], pframe[FRAME_SIZE - 1]);
+}
+
+void setCommandType(uint8_t *pframe, uint8_t cmd)
+{
+    pframe[4] = cmd;
+}
+
 int bootloader_v2_command(int fd, uint8_t cmd, const uint8_t *payload, size_t payload_len, uint8_t *response, int timeout_ms)
 {
     if (payload_len > 4096)
         return -1;
 
     uint8_t frame[FRAME_SIZE];
-    memset(frame, 0, sizeof(frame));
-    frame[0] = MAGIC0;
-    frame[1] = MAGIC1;
-    frame[2] = MAGIC2;
-    frame[3] = MAGIC3;
-    frame[4] = cmd;
+    clear_message(frame);
+    setCommandType(frame, cmd);
+    prepare_frame(frame);
+
     //frame[5] = 0x00; // is_response = 0 (command)
     //frame[6] = payload_len & 0xFF;
     //frame[7] = (payload_len >> 8) & 0xFF;
     //if (payload != NULL && payload_len > 0)
     //    memcpy(&frame[PAYLOAD_OFFSET], payload, payload_len);
 
-    uint16_t crc = calculateCRC16(65535, frame, SEND_BUFFER_BYTE_INDEX_CRC);
-    frame[SEND_BUFFER_BYTE_INDEX_CRC] = crc & 0xFF;
-    frame[SEND_BUFFER_BYTE_INDEX_CRC + 1] = (crc & 0xFF00) >> 8;
-    printf("Frame last two bytes (CRC): 0x%02X 0x%02X\n", frame[FRAME_SIZE - 2], frame[FRAME_SIZE - 1]);
+
 
     if (write_all(fd, frame, FRAME_SIZE, timeout_ms) != 0)
         return -2;
@@ -282,27 +309,28 @@ typedef enum {
 BootloaderVersion bootloaderVersionDetectWaitForGetFastMethod(int fd)
 {
     // Enter programming mode (bootloader mode)
-    enter_boot_mode();
+    enter_programming_mode();
 
     // Clear input buffer
     tcflush(fd, TCIFLUSH);
 
     // Sequence to detect V1: "GET 512"
     const uint8_t v1_seq[7] = {71, 69, 84, 32, 53, 49, 50};
+    /* Sequence in hex: 0x47, 0x45, 0x54, 0x20, 0x35, 0x31, 0x32 */
+    // V1 sequence as ASCII: 'G','E','T',' ','5','1','2'
+    // V1 sequence as string: "GET 512"
     BootloaderVersion bootloaderVersion = BOOTLOADER_UNKNOWN;
 
     for (int attempt = 0; attempt < 3 && bootloaderVersion == BOOTLOADER_UNKNOWN; attempt++)
     {
         reset_mcu();
-        usleep(100000); // 100ms
-
         int matched = 0;
         uint8_t ch;
         unsigned long start = (unsigned long)time(NULL);
-        while (((unsigned long)time(NULL) - start) < 2) { // 2 seconds timeout
+        while (((unsigned long)time(NULL) - start) < 12) { // 12 seconds timeout
             usleep(100000); // 100ms
             while (read(fd, &ch, 1) == 1) {
-                printf("Received char: 0x%02X ('%c')\n", ch, (ch >= 32 && ch <= 126) ? ch : '.');
+                printf("%c", (ch >= 32 && ch <= 126) ? ch : '.');
                 if (ch == v1_seq[matched]) {
                     printf("- Matched %d\n", matched);
                     matched++;
@@ -317,8 +345,10 @@ BootloaderVersion bootloaderVersionDetectWaitForGetFastMethod(int fd)
             if (bootloaderVersion == BOOTLOADER_V1)
                 break;
         }
+        /*
         if (bootloaderVersion == BOOTLOADER_UNKNOWN) {
             reset_mcu();
+            usleep(100000); // 100ms
             // Try V2 detection: send GET_STATE command and expect valid response
             uint8_t resp[FRAME_SIZE];
             int r = bootloader_v2_command(fd, CMD_GET_STATE, NULL, 0, resp, 6000);
@@ -326,7 +356,7 @@ BootloaderVersion bootloaderVersionDetectWaitForGetFastMethod(int fd)
             if (r == 0) {
                 bootloaderVersion = BOOTLOADER_V2;
             }
-        }
+        }*/
     }
     if (bootloaderVersion == BOOTLOADER_V1) {
         printf("Detected bootloader version: V1\n");
@@ -336,7 +366,7 @@ BootloaderVersion bootloaderVersionDetectWaitForGetFastMethod(int fd)
         printf("Bootloader version: UNKNOWN\n");
     }
     // Exit programming mode
-    exit_boot_mode();
+    exit_programming_mode();
 
     return bootloaderVersion;
 }

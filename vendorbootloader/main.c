@@ -1,4 +1,4 @@
-// Minimal Bootloader V2 "GET_STATE" client.
+// Minimal Bootloader V1 client.
 // Usage: sudo ./vendor_protocol_programing_tool ./klipper/out/klipper.bin /dev/ttyS2
 //
 #include <stdio.h>
@@ -11,38 +11,18 @@
 #include <errno.h>
 #include <sys/select.h>
 #include <time.h>
+#include <ctype.h>
+#include <sys/stat.h>
 
 
-#define SEND_BUFFER_BYTE_INDEX_CRC 4104
-#define FRAME_SIZE 4106
-#define PAYLOAD_OFFSET 8
-#define MAGIC0 'Z'
-#define MAGIC1 'B'
-#define MAGIC2 'O'
-#define MAGIC3 'T'
-#define CMD_GET_STATE 0x01
+#define END_SIGNAL -1000
 
-#define CMD_GET_STATE   0x01
-#define CMD_START_APP   0x02
-#define CMD_START_FLASH 0x03
-#define CMD_FLASH       0x04
-#define CMD_REBOOT      0x05
-#define CMD_END_FLASH   0x06
-    
-#define ZOS_BOOT_STATE_IDLE      0
-#define ZOS_BOOT_STATE_FAILSAFE  1
-#define ZOS_BOOT_STATE_FLASHING  2
-
-// Reset pin, named LED in the java code PF1 -> port F (index 5): 5*32 + 1 = 161 LED(161),
+// Reset pin, LED PF1
 // found in gpio_manager_script.sh
 #define RESET_PIN "/sys/devices/platform/leds/leds/nrst:usr/brightness"
-// But it also could be GPIO6 PC01 according to the java code
-//#define RESET_PIN "/sys/devices/platform/leds/leds/gpio6:usr/brightness"
 
 // Boot found in gpio_manager_script.sh
 #define BOOT_PIN "/sys/devices/platform/leds/leds/boot:usr/brightness"
-// But it could also be GPIOS PC03 according to the java code
-//#define BOOT_PIN "/sys/devices/platform/leds/leds/gpios:usr/brightness"
 
 void set_reset_pin(int value)
 {
@@ -78,40 +58,11 @@ void enter_programming_mode()
     reset_mcu();
 }
 
-
 void exit_programming_mode()
 {
     // Configure GPIOs for bootloader mode:
     set_boot_pin(0); // Programming mode Off
     reset_mcu();
-}
-
-static const uint16_t crcTable[256] = {
-    0, 4489, 8978, 12955, 17956, 22445, 25910, 29887, 35912, 40385, 44890, 48851, 51820, 56293, 59774, 63735,
-    2329, 6288, 10763, 15234, 20285, 24244, 27695, 32166, 34129, 38104, 42563, 47050, 50037, 54012, 57447, 61934,
-    4658, 955, 12576, 8361, 21526, 17823, 30468, 26253, 40570, 36851, 48488, 44257, 55390, 51671, 64332, 60101,
-    6955, 2722, 14393, 10672, 23823, 19590, 32285, 28564, 38755, 34538, 46193, 42488, 53575, 49358, 62037, 58332,
-    9316, 13805, 1910, 5887, 25152, 29641, 16722, 20699, 43052, 47525, 35646, 39607, 60936, 65409, 52506, 56467,
-    11645, 15604, 3695, 8166, 27481, 31440, 18507, 22978, 41269, 45244, 33319, 37806, 59153, 63128, 50179, 54666,
-    13910, 10207, 5444, 1229, 28786, 25083, 21344, 17129, 47646, 43927, 39180, 34949, 64570, 60851, 57128, 52897,
-    16207, 11974, 7261, 3540, 31083, 26850, 23161, 19440, 45831, 41614, 36885, 33180, 62755, 58538, 54833, 51128,
-    18632, 22849, 27610, 31315, 3820, 8037, 11774, 15479, 50304, 54537, 59282, 63003, 33444, 37677, 41398, 45119,
-    16849, 20568, 25283, 29514, 2037, 5756, 9447, 13678, 52633, 56336, 61067, 65282, 35773, 39476, 43183, 47398,
-    23290, 19315, 31208, 26721, 7390, 3415, 16332, 11845, 54962, 51003, 62880, 58409, 37014, 33055, 45956, 41485,
-    21475, 17002, 28913, 24952, 5575, 1102, 14037, 10076, 57259, 52770, 64697, 60720, 39311, 34822, 47773, 43796,
-    27820, 32037, 20414, 24119, 10888, 15105, 2458, 6163, 57572, 61805, 50166, 53887, 42688, 46921, 34258, 37979,
-    26037, 29756, 18087, 22318, 9105, 12824, 131, 4362, 59901, 63604, 51951, 56166, 45017, 48720, 36043, 40258,
-    32414, 28439, 23948, 19461, 14522, 10547, 7080, 2593, 62166, 58207, 53700, 49229, 46322, 42363, 38880, 34409,
-    30599, 26126, 21653, 17692, 12707, 8234, 4785, 824, 64463, 59974, 55517, 51540, 48619, 44130, 40697, 36720
-};
-
-// 0, 4489, 8978, 12955, 17956, 22445, 25910, 29887, 35912, 40385, 44890, 48851, 51820, 56293, 59774, 63735, 2329, 6288, 10763, 15234, 20285, 24244, 27695, 32166, 34129, 38104, 42563, 47050, 50037, 54012, 57447, 61934, 4658, 955, 12576, 8361, 21526, 17823, 30468, 26253, 40570, 36851, 48488, 44257, 55390, 51671, 64332, 60101, 6955, 2722, 14393, 10672, 23823, 19590, 32285, 28564, 38755, 34538, 46193, 42488, 53575, 49358, 62037, 58332, 9316, 13805, 1910, 5887, 25152, 29641, 16722, 20699, 43052, 47525, 35646, 39607, 60936, 65409, 52506, 56467, 11645, 15604, 3695, 8166, 27481, 31440, 18507, 22978, 41269, 45244, 33319, 37806, 59153, 63128, 50179, 54666, 13910, 10207, 5444, 1229, 28786, 25083, 21344, 17129, 47646, 43927, 39180, 34949, 64570, 60851, 57128, 52897, 16207, 11974, 7261, 3540, 31083, 26850, 23161, 19440, 45831, 41614, 36885, 33180, 62755, 58538, 54833, 51128, 18632, 22849, 27610, 31315, 3820, 8037, 11774, 15479, 50304, 54537, 59282, 63003, 33444, 37677, 41398, 45119, 16849, 20568, 25283, 29514, 2037, 5756, 9447, 13678, 52633, 56336, 61067, 65282, 35773, 39476, 43183, 47398, 23290, 19315, 31208, 26721, 7390, 3415, 16332, 11845, 54962, 51003, 62880, 58409, 37014, 33055, 45956, 41485, 21475, 17002, 28913, 24952, 5575, 1102, 14037, 10076, 57259, 52770, 64697, 60720, 39311, 34822, 47773, 43796, 27820, 32037, 20414, 24119, 10888, 15105, 2458, 6163, 57572, 61805, 50166, 53887, 42688, 46921, 34258, 37979, 26037, 29756, 18087, 22318, 9105, 12824, 131, 4362, 59901, 63604, 51951, 56166, 45017, 48720, 36043, 40258, 32414, 28439, 23948, 19461, 14522, 10547, 7080, 2593, 62166, 58207, 53700, 49229, 46322, 42363, 38880, 34409, 30599, 26126, 21653, 17692, 12707, 8234, 4785, 824, 64463, 59974, 55517, 51540, 48619, 44130, 40697, 36720
-
-static int calculateCRC16(int crc, const uint8_t *data, size_t len) {
-    for (size_t i = 0; i < len; i++) {
-        crc = (crcTable[((crc >> 8) ^ data[i]) & 0xFF] ^ (crc << 8)) & 0xFFFF;
-    }
-    return crc;
 }
 
 static speed_t baud_to_speed(int baud)
@@ -171,10 +122,32 @@ static int open_serial(const char *dev, int baud)
         close(fd);
         return -1;
     }
-
     return fd;
 }
 
+// helper: drain any pending input
+static void drain_input(int fd) {
+    uint8_t tmp[256];
+    ssize_t r;
+    while ((r = read(fd, tmp, sizeof(tmp))) > 0) { /* discard */ }
+    (void)r;
+}
+
+// helper: write all bytes to fd
+static int write_all_fd(int fd, const uint8_t *buf, size_t len, int timeout_ms) {
+    size_t sent = 0;
+    while (sent < len) {
+        ssize_t w = write(fd, buf + sent, len - sent);
+        if (w < 0) {
+            if (errno == EINTR) continue;
+            return -1;
+        }
+        sent += w;
+    }
+    tcdrain(fd); // ensure kernel pushes out (optional)
+    return 0;
+}
+/*
 static int write_all(int fd, const void *buf, size_t len, int timeout_ms)
 {
     const uint8_t *p = buf;
@@ -194,14 +167,18 @@ static int write_all(int fd, const void *buf, size_t len, int timeout_ms)
         remaining -= w;
     }
     return 0;
-}
+}*/
 
-static int read_exact(int fd, void *buf, size_t len, int timeout_ms)
+// parse and wait for "GET <N>\n" or "END" within timeout_ms (ms).
+// returns: >0 number requested, END_SIGNAL for END, -1 timeout, -2 parse error, -3 other error
+static int get_bytes_request(int fd, int timeout_ms)
 {
-    uint8_t *p = buf;
-    size_t got = 0;
+    char buf[1024];
+    size_t pos = 0;
+    long start = (long)time(NULL) * 1000L;
+    int timed_out = 0;
 
-    while (got < len) {
+    while (!timed_out) {
         fd_set rfds;
         struct timeval tv;
         FD_ZERO(&rfds);
@@ -209,106 +186,169 @@ static int read_exact(int fd, void *buf, size_t len, int timeout_ms)
         tv.tv_sec = timeout_ms / 1000;
         tv.tv_usec = (timeout_ms % 1000) * 1000;
         int r = select(fd + 1, &rfds, NULL, NULL, &tv);
-        if (r < 0) return -1;
+        if (r < 0) {
+            if (errno == EINTR) continue;
+            return -3;
+        }
         if (r == 0) {
+            return -1; // timeout
+        }
+        ssize_t rd = read(fd, buf + pos, sizeof(buf) - 1 - pos);
+        if (rd <= 0) {
+            if (rd == 0) return -1;
+            if (errno == EINTR) continue;
+            return -3;
+        }
+        // accept only printable/digits/space/CR/LF
+        size_t got = 0;
+        for (ssize_t i = 0; i < rd; ++i) {
+            unsigned char c = (unsigned char)buf[pos + got];
+            buf[pos + got] = c; // already read
+            got++;
+        }
+        pos += rd;
+        if (pos >= sizeof(buf) - 1) {
+            pos = sizeof(buf) - 2;
+        }
+        buf[pos] = '\0';
+
+        // check for "END " or "ENDE\n" or "END" token
+        if (strstr(buf, "END ") || strstr(buf, "ENDE\n") || strstr(buf, "END\n")) {
+            return END_SIGNAL;
+        }
+        // find "GET "
+        char *g = strstr(buf, "GET ");
+        if (g) {
+            // parse digits after "GET "
+            char *p = g + 4;
+            // skip optional spaces
+            while (*p == ' ') p++;
+            if (!isdigit((unsigned char)*p)) return -2;
+            long val = 0;
+            while (isdigit((unsigned char)*p)) {
+                val = val * 10 + (*p - '0');
+                p++;
+            }
+            // require terminating newline for safety
+            if (*p == '\n' || *p == '\r' || *p == '\0') {
+                return (int)val;
+            } else {
+                // continue reading until newline appears
+            }
+        }
+        // small sleep to let more bytes arrive (avoid busy loop)
+        struct timespec ts = {0, 10 * 1000 * 1000}; // 10ms
+        nanosleep(&ts, NULL);
+
+        // check overall timeout (safer)
+        long now = (long)time(NULL) * 1000L;
+        if (now - start > timeout_ms) timed_out = 1;
+    }
+    return -1;
+}
+
+// program_mcu: returns status codes: 0 OK, 2 open/file error, 5 timeout, 100 done
+int program_mcu(const char *filename, int serial_dev)
+{
+    struct stat st;
+    if (stat(filename, &st) != 0) return 4; // file not found
+    off_t filesize = st.st_size;
+    FILE *f = fopen(filename, "rb");
+    if (!f) return 4;
+
+    // drain any old bytes
+    drain_input(serial_dev);
+
+    // enter programming mode and reset MCU
+    enter_programming_mode();
+
+    off_t file_counter = 0;
+    int timeout_retries = 0;
+    int seen_any_send = 0;
+
+    while (1) {
+        // Gets the number of bytes to be sent to the bootloader
+        int req = get_bytes_request(serial_dev, 15000); // 15s timeout
+        if (req == -1) {
             // timeout
-            return -2;
+            if (++timeout_retries > 3) {
+                fclose(f);
+                close(serial_dev);
+                exit_programming_mode();
+                return 5; // TIMEOUT
+            }
+            // retry: reset once, then keep trying
+            if (!seen_any_send)
+            {
+                reset_mcu();
+            }
+            continue;
+        } else if (req == END_SIGNAL) {
+            // finished
+            fclose(f);
+            close(serial_dev);
+            exit_programming_mode();
+            return 100; // DONE
+        } else if (req <= 0) {
+            // protocol error
+            fclose(f);
+            exit_programming_mode();
+            close(serial_dev);
+            return 2; // IO/protocol error
+        } else {
+            // req > 0
+            if (file_counter >= filesize) {
+                // no more bytes to send, reset retry counter and continue
+                timeout_retries = 0;
+                continue;
+            }
+            // Send the next bytes
+            size_t to_send = (size_t)req;
+            if ((off_t)to_send > (filesize - file_counter)) {
+                to_send = (size_t)(filesize - file_counter);
+            }
+            uint8_t *buf = malloc(to_send);
+            if (!buf) {
+                fclose(f);
+                close(serial_dev);
+                exit_programming_mode();
+                return 2;
+            }
+            size_t readed = fread(buf, 1, to_send, f);
+            if (readed != to_send) {
+                // unexpected read length
+                free(buf);
+                fclose(f);
+                close(serial_dev);
+                exit_programming_mode();
+                return 2;
+            }
+            // Send the data to the bootloader
+            if (write_all_fd(serial_dev, buf, to_send, 2000) != 0) {
+                free(buf);
+                fclose(f);
+                close(serial_dev);
+                exit_programming_mode();
+                return 2;
+            }
+            free(buf);
+            file_counter += to_send;
+            seen_any_send = 1;
+            timeout_retries = 0;
+            // optionally report progress: (int)round(100.0 * file_counter / filesize)
         }
-        ssize_t rd = read(fd, p + got, len - got);
-        if (rd < 0) return -1;
-        if (rd == 0) {
-            // no more data
-            return -2;
-        }
-        for (size_t i = 0; i < rd; i++) {
-            printf("RX: 0x%02X ('%c')\n", p[got + i], (p[got + i] >= 32 && p[got + i] <= 126) ? p[got + i] : '.');
-        }
-        got += rd;
-        // continue until len
     }
-    return 0;
-}
-
-void clear_message(uint8_t *pframe)
-{
-    memset(pframe, 0, sizeof(uint8_t) * FRAME_SIZE);
-    pframe[0] = MAGIC0;
-    pframe[1] = MAGIC1;
-    pframe[2] = MAGIC2;
-    pframe[3] = MAGIC3;
-}
-
-void prepare_frame(uint8_t *pframe)
-{
-    int crc = calculateCRC16(0xFFFF, pframe, SEND_BUFFER_BYTE_INDEX_CRC);
-    pframe[SEND_BUFFER_BYTE_INDEX_CRC] = crc & 0xFF;
-    pframe[SEND_BUFFER_BYTE_INDEX_CRC + 1] = (crc & 0xFF00) >> 8;
-    printf("Frame last two bytes (CRC): 0x%02X 0x%02X\n", pframe[FRAME_SIZE - 2], pframe[FRAME_SIZE - 1]);
-}
-
-void setCommandType(uint8_t *pframe, uint8_t cmd)
-{
-    pframe[4] = cmd;
-}
-
-int bootloader_v2_command(int fd, uint8_t cmd, const uint8_t *payload, size_t payload_len, uint8_t *response, int timeout_ms)
-{
-    if (payload_len > 4096)
-        return -1;
-
-    uint8_t frame[FRAME_SIZE];
-    clear_message(frame);
-    setCommandType(frame, cmd);
-    prepare_frame(frame);
-
-    //frame[5] = 0x00; // is_response = 0 (command)
-    //frame[6] = payload_len & 0xFF;
-    //frame[7] = (payload_len >> 8) & 0xFF;
-    //if (payload != NULL && payload_len > 0)
-    //    memcpy(&frame[PAYLOAD_OFFSET], payload, payload_len);
-
-
-
-    if (write_all(fd, frame, FRAME_SIZE, timeout_ms) != 0)
-        return -2;
-
-    if (!response)
-        return 0;
-
-    int r = read_exact(fd, response, FRAME_SIZE, timeout_ms);
-    if (r == -2) {
-        printf("read timeout\n");
-        return -6;
-    } else if (r < 0) {
-        perror("read");
-        return -7;
-    }
-    if (r != 0)
-        return -3;
-
-    if (response[0] != MAGIC0 || response[1] != MAGIC1 ||
-        response[2] != MAGIC2 || response[3] != MAGIC3)
-        return -4;
-
-    uint16_t resp_crc = response[4104] | (response[4105] << 8);
-    uint16_t calc = calculateCRC16(0xFFFF, response, SEND_BUFFER_BYTE_INDEX_CRC);
-    if (resp_crc != calc)
-    {
-        printf("Invalid response crc.\n");
-        return -5;
-    }
-    return 0;
+    // unreachable
+    return 2;
 }
 
 typedef enum {
     BOOTLOADER_UNKNOWN = 0,
-    BOOTLOADER_V1,
-    BOOTLOADER_V2
+    BOOTLOADER_V1
 } BootloaderVersion;
 
-BootloaderVersion bootloaderVersionDetectWaitForGetFastMethod(int fd)
+BootloaderVersion bootloaderVersionDetect(int fd)
 {
-    // Enter programming mode (bootloader mode)
     enter_programming_mode();
 
     // Clear input buffer
@@ -345,27 +385,12 @@ BootloaderVersion bootloaderVersionDetectWaitForGetFastMethod(int fd)
             if (bootloaderVersion == BOOTLOADER_V1)
                 break;
         }
-        /*
-        if (bootloaderVersion == BOOTLOADER_UNKNOWN) {
-            reset_mcu();
-            usleep(100000); // 100ms
-            // Try V2 detection: send GET_STATE command and expect valid response
-            uint8_t resp[FRAME_SIZE];
-            int r = bootloader_v2_command(fd, CMD_GET_STATE, NULL, 0, resp, 6000);
-            printf("V2 detection bootloader_v2_command returned: %d\n", r);
-            if (r == 0) {
-                bootloaderVersion = BOOTLOADER_V2;
-            }
-        }*/
     }
     if (bootloaderVersion == BOOTLOADER_V1) {
         printf("Detected bootloader version: V1\n");
-    } else if (bootloaderVersion == BOOTLOADER_V2) {
-        printf("Detected bootloader version: V2\n");
     } else {
         printf("Bootloader version: UNKNOWN\n");
     }
-    // Exit programming mode
     exit_programming_mode();
 
     return bootloaderVersion;
@@ -401,72 +426,28 @@ int main(int argc, char **argv)
     set_reset_pin(1);
     set_boot_pin(0);
 
-    bootloaderVersionDetectWaitForGetFastMethod(serial_port);
-    exit(0);
-/*
-    uint8_t frame[FRAME_SIZE];
-    memset(frame, 0, sizeof(frame));
-    frame[0] = MAGIC0; frame[1] = MAGIC1; frame[2] = MAGIC2; frame[3] = MAGIC3;
-    frame[4] = CMD_GET_STATE;   // command id
-    frame[5] = 0x00;            // is_response = 0 (command)
-    frame[6] = 0x00; frame[7] = 0x00; // data size (little endian)
-    // payload left zero
-
-    uint16_t crc = crc16_ccitt(frame, PAYLOAD_OFFSET + 4096 + 0); // bytes 0..4103
-    // write CRC little endian at offset 4104
-    frame[4104] = crc & 0xFF;
-    frame[4105] = (crc >> 8) & 0xFF;
-
-    if (write_all(fd, frame, FRAME_SIZE, 2000) != 0) {
-        fprintf(stderr, "write timeout or error\n");
-        close(fd);
-        return 3;
+    //bootloaderVersionDetectWaitForGetFastMethod(serial_port);
+    int ret = program_mcu(filename, serial_port);
+    switch (ret) {
+        case 0:
+            printf("Programming OK\n");
+            break;
+        case 2:
+            printf("IO or protocol error\n");
+            break;
+        case 4:
+            printf("File not found\n");
+            break;
+        case 5:
+            printf("Timeout\n");
+            break;
+        case 100:
+            printf("Programming DONE\n");
+            break;
+        default:
+            printf("Unknown return value: %d\n", ret);
+            break;
     }
-
-    // wait for response frame
-    uint8_t resp[FRAME_SIZE];
-    int r = read_exact(fd, resp, FRAME_SIZE, 6000); // 6s
-    if (r == -2) {
-        fprintf(stderr, "read timeout\n");
-        close(fd);
-        return 4;
-    } else if (r != 0) {
-        perror("read");
-        close(fd);
-        return 5;
-    }
-
-    // validate magic
-    if (resp[0] != MAGIC0 || resp[1] != MAGIC1 || resp[2] != MAGIC2 || resp[3] != MAGIC3) {
-        fprintf(stderr, "invalid magic in response\n");
-        close(fd);
-        return 6;
-    }
-
-    // validate CRC
-    uint16_t resp_crc = resp[4104] | (resp[4105] << 8);
-    uint16_t calc = crc16_ccitt(resp, 4104);
-    if (resp_crc != calc) {
-        fprintf(stderr, "CRC mismatch: resp=0x%04X calc=0x%04X\n", resp_crc, calc);
-        // continue, maybe different CRC variant used
-    } else {
-        printf("CRC OK\n");
-    }
-
-    printf("response cmd=%#02x is_response=%u\n", resp[4], resp[5]);
-    // dump first 32 bytes of payload
-    printf("payload (first 32 bytes):\n");
-    for (int i = 0; i < 32; i++) {
-        printf("%02X ", resp[PAYLOAD_OFFSET + i]);
-        if ((i & 15) == 15) printf("\n");
-    }
-    printf("\n");
-
-    // interpret likely state value at payload[0] (vendor-dependent)
-    uint8_t state = resp[PAYLOAD_OFFSET + 0];
-    printf("bootloader reported state: 0x%02X (%u)\n", state, state);
-
-    close(fd);
-    */
+    close(serial_port);
     return 0;
 }

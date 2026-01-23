@@ -30,6 +30,8 @@ monitor_speed               = 115200
 board_build.offset          = 0x8000       (32768 bytes, 32K offset)
 board_upload.offset_address = 0x08008000
 ```
+However, their bootloader is undocumented and the data seems encrypted because firmware.bin does not contian arm code.
+It can be replaced by Katapult, using the debug pins.
 
 ### Build the firmware
 
@@ -43,7 +45,7 @@ Select
 And then select (Enable extra low-level configuration options):
 Micro-controller Architecture: STM32
 Processor model:               STM32F103
-Bootloader at:                 8K for katapult, 32K if it was the zortrax bootloader.
+Bootloader at:                 8K for katapult, 32K if it was the zortrax bootloader (and it is not).
 Communication interface:       USART2 on PA3 PA2
 Frequency                      8Mhz
 
@@ -64,8 +66,8 @@ To connect serial user interface (OctoPrint or other using Raspberry PI or UART 
 Pinout of the **DEBUG** header described below:
 -	NRST
 -	**GND <--- connect to GND on host**
--	TMS/NC
--	TCK/NC
+-	TMS/NC SWDIO
+-	TCK/NC SWDCLK
 -	**TX <--- connect to RX on host**
 -	**RX <--- connect to TX on host**
 -	BOOT0
@@ -73,7 +75,7 @@ Pinout of the **DEBUG** header described below:
 
 **Caution**: if you are going to use debugger (ST-Link), know that any attempt to read or write from/to flash memory will result in mass erase of the flash. It will erase the the bootloader and all the settings, including lifetimer, serial number and hardware version, as flash memory of chip is read out protection enabled at production! If that happens you won't be able to use official firmware anymore!
 
-### Pins
+### Android board P3 Pins
 
 Android side       MCU side
 
@@ -88,7 +90,7 @@ SLP
 RX                 RX
 TX                 TX
 
-MCU   Android pins
+      MCU Pins                              Android pins
 -------------------------------------------------------------------------------------------------
 STM   is PD2 TIM3_ETR/UART5_RX/SDIO_CMD     gpio_pin_5 = port:PC01<1><default><default><0>  MISO
 MTS   is PD1 OSC_OUT/FSMC_D3/CAN_TX         gpio_pin_6 = port:PC00<1><default><default><0>  MOSI
@@ -104,7 +106,7 @@ uart2_cts_rts_pb_pins: uart2-cts-rts-pb-pins {
     function = "uart2";
 };
 
-Debug connector:
+## Debug connector:
 
 RESET; VSS/GND; PA13;     PA14;        PA10;       PA9;      BOOT0; 3.3V
               JTMS-SWDIO  JTCK-SWCLK  USART1_RX  USART1_TX
@@ -120,29 +122,27 @@ RESET; VSS/GND; PA13;     PA14;        PA10;       PA9;      BOOT0; 3.3V
 
 ### Katapult configuration
 
-If you replace the vendor bootloader with a katapult one using the debug port.
+Replacing the vendor bootloader with the katapult bootloader using the debug port.
 
-make menuconfig
+In the Katapult repo:
 ```
+make menuconfig
+
 Micro-controller architecture: STM32F13
 No deployment application
 Clock reference: 8Mhz crystal
 Communicaiton iunterface: USART2 PA3/PA2
 Application start offset 8KB offset.
-//Enable bootloader on button state: PD4 RESET
-```
+115200 baudrate instead of 250000 given the electric noise inside the machine.
 
 make
+```
 
-It generates 
-```
-out/katapult.bin
-```
+It generates ./out/katapult.bin
 That's what we flash as bootloader.
-
 Using the Katapult's flashtool on the debug header.
 ```
-sudo python3 flashtool.py -d /dev/ttyUSB0 -b 115200 -f out/katapult.bin
+sudo python3 ./scripts/flashtool.py -d /dev/ttyUSB0 -b 115200 -f out/katapult.bin
 ```
 or
 
@@ -154,7 +154,17 @@ sudo stm32flash -b 115200 -w out/katapult.bin /dev/ttyUSB0
 
 https://github.com/Arksine/katapult/issues/135
 
+
 ### Programming the firmware on the machine:
+
+The stock MCU is read protected, we must do a mass erase prior to flashing Katapult.
+An uart is not enough, we need the SWDIO SWDCLK pins connected to a STLINK V2 system.
+
+To flash from a discovery board: https://scienceprog.com/downloading-binaries-using-stm32-st-link-utility/
+
+```
+openocd -f interface/stlink-v2.cfg -f target/stm32f1x.cfg -c "init; reset halt; mdw 0x40022000 4; shutdown"
+```
 
 ```
 sudo apt update

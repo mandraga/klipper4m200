@@ -19,10 +19,12 @@ It goes through a level shifter, to be investigated.
 
 The two first SD card slots are not populated. SDIO_0 goes to an unpopulated SDWifi chip.
 SDIO_1 has no traces outside of the SOM board.
+A test to use it with a card did not work.
 
 ## LED
 
-Two onboard leds.
+Two onboard leds. Only the power led does something below the power button.
+BTW the power button is more of a reset button.
 
 ## USB
 

@@ -1,0 +1,630 @@
+HELLO! BOOT0 is starting!
+boot0 version : 3.1.0
+reg_addr 0x01f00100 =0x00000000
+reg_addr 0x01f00104 =0x00000000
+reg_addr 0x01f00108 =0x00000000
+reg_addr 0x01f0010c =0x00000000
+reg_addr 0x01f00110 =0x00000000
+reg_addr 0x01f00114 =0x00000000
+DRAM DRIVE INFO: V1.5
+DRAM CLK =552 MHZ
+DRAM simple test OK.
+dram size =1024
+card boot number = 2
+card no is 2
+sdcard 2 line count 0
+[mmc]: mmc driver ver 2014-07-07 16:54
+[mmc]: ***Try SD card 2***
+[mmc]: mmc 2 cmd 8 timeout, err 0x00000100
+[mmc]: mmc 2 cmd 8 err 0x00000100
+[mmc]: mmc 2 send if cond failed
+[mmc]: mmc 2 cmd 55 timeout, err 0x00000100
+[mmc]: mmc 2 cmd 55 err 0x00000100
+[mmc]: mmc 2 send app cmd failed
+[mmc]: ***Try MMC card 2***
+[mmc]: MMC ver 5.0
+[mmc]: SD/MMC Card: 4bit, capacity: 7456MB
+[mmc]: vendor: Man 0x00110100 Snr 0x00f15daa
+[mmc]: product: 008G7
+[mmc]: revision: 3.0
+[mmc]: ***SD/MMC 2 init OK!!!***
+sdcard 2 init ok
+The size of uboot is 0x000bc000.
+sum=0x243a50b7
+src_sum=0x243a50b7
+set_mmc_para,sdly 50M 0
+set_mmc_para,sdly 25M 0
+Succeed in loading uboot from sdmmc flash.
+Ready to disable icache.
+Jump to secend Boot.
+[      0.366]
+
+U-Boot 2011.09-rc1 (Mar 21 2017 - 01:10:46) Allwinner Technology 
+
+[      0.374]version: 1.1.0
+[      0.459]pmbus:   ready
+[      0.461]PMU: AXP221
+[      0.463]PMU: AXP22x found
+[      0.467]PMU: dcdc3 1200
+[      0.470]PMU: pll1 1008 Mhz,PLL6=600 Mhz
+AXI=336 Mhz,AHB=200 Mhz, APB1=100 Mhz 
+set power on vol to default
+dcdc1_vol = 3000
+dcdc2_vol = 1100
+dcdc3_vol = 1200
+dcdc4_vol = 0
+dcdc5_vol = 1500
+aldo2_vol = 2500
+aldo3_vol = 3000
+eldo1_vol = 1800
+dldo2_vol = 1800
+find power_sply to end
+no battery, limit to dc
+fel key old mode
+run key detect
+no key found
+no key input
+dram_para_set start
+dram_para_set end
+[      0.522]DRAM:  1 GiB
+relocation Offset is: 35b11000
+smcl's set manager is NULL
+<axp22, dc1sw>
+workmode = 0
+MMC:	 2
+[      0.721][mmc]: mmc driver ver 2014-07-15 17:16:00
+[      0.726][mmc]: get sdc_2xmode ok, val = 1
+[      0.730][mmc]: get sdc_f_max fail,use default sdc_f_max 50000000
+[      0.736][mmc]: get card_line ok, card_line = 4
+[      0.741][mmc]: get sdc_ex_dly_used fail,use default dly
+[      0.746][mmc]: SUNXI SD/MMC: 2
+[      1.298][mmc]: mmc 2 2xmode config clk
+[      1.311][mmc]: ************Try SD card 2************
+[      1.316][mmc]: mmc 2 cmd 8 timeout, err 100
+[      1.321][mmc]: smc 2 err, cmd 8,  RTO
+[      1.326][mmc]: mmc 2 mmc cmd 8 err 0x00000100
+[      1.330][mmc]: mmc send if cond failed
+[      1.334][mmc]: mmc 2 cmd 55 timeout, err 100
+[      1.338][mmc]: smc 2 err, cmd 55,  RTO
+[      1.344][mmc]: mmc 2 mmc cmd 55 err 0x00000100
+[      1.348][mmc]: send app cmd failed
+[      1.351][mmc]: ************Try MMC card 2************
+[      1.399][mmc]: mmc 2 2xmode config clk
+[      1.409][mmc]: mmc 2 2xmode config clk
+[      1.418][mmc]: mmc 2 2xmode config clk
+[      1.427][mmc]: MID 000011 PSN f15daa51
+[      1.430][mmc]: PNM 008G70 -- 0x30-30-38-47-37-30
+[      1.435][mmc]: PRV 0.0
+[      1.438][mmc]: MDT m-1 y-2019
+[      1.441][mmc]: MMC ver 5.0
+[      1.444][mmc]: ---------------mmc->clock 50000000-----------
+[      1.449][mmc]: ---------------mmc->bus_width 4--------------
+[      1.455][mmc]: SD/MMC Card: 4bit, capacity: 7456MB
+[      1.460][mmc]: boot0 capacity: 4000KB,boot1 capacity: 4000KB
+[      1.466][mmc]: ************SD/MMC 2 init OK!!!************
+[      1.472]sunxi flash init ok
+In:    serial
+Out:   serial
+Err:   serial
+--------fastboot partitions--------
+-total partitions:10-
+-name-        -start-       -size-      
+bootloader  : 1000000       2000000     
+env         : 3000000       1000000     
+boot        : 4000000       1000000     
+system      : 5000000       30000000    
+misc        : 35000000      1000000     
+recovery    : 36000000      2000000     
+cache       : 38000000      20000000    
+metadata    : 58000000      1000000     
+private     : 59000000      1000000     
+UDISK       : 5a000000      0           
+-----------------------------------
+base bootcmd=run setargs_nand boot_normal
+bootcmd set setargs_mmc
+key 0
+recovery key high 100, low 2
+cant find fstbt value
+misc partition found
+Recovery detected, will boot recovery
+to be run cmd=run setargs_mmc boot_recovery
+mount part name bootloader
+cant open script.bin, maybe it is not exist
+WORK_MODE_BOOT
+board_status_probe
+[      1.573]power trigger
+bat_exist=0
+[      1.577]no battery exist
+sunxi_bmp_logo_display
+screen_id =0, screen_width =480, screen_height =800
+[      1.618]Hit any key to stop autoboot:  0 
+read boot or recovery all
+[      2.263]sunxi flash read :offset 36000000, 15450505 bytes OK
+no signature
+[      2.275]ready to boot
+para err in disp_ioctl, cmd = 0xa,screen id = 1
+[      2.282][mmc]: mmc exit start
+[      2.286][mmc]: mmc 2 2xmode config clk
+[      2.296][mmc]: mmc 2 2xmode config clk
+[      2.308][mmc]: mmc 2 cmd 8 timeout, err 100
+[      2.313][mmc]: smc 2 err, cmd 8,  RTO
+[      2.318][mmc]: mmc 2 mmc cmd 8 err 0x00000100
+[      2.322][mmc]: mmc send if cond failed
+[      2.326][mmc]: mmc 2 cmd 55 timeout, err 100
+[      2.330][mmc]: smc 2 err, cmd 55,  RTO
+[      2.336][mmc]: mmc 2 mmc cmd 55 err 0x00000100
+[      2.340][mmc]: send app cmd failed
+[      2.372][mmc]: mmc 2 exit ok
+[      2.375]
+Starting kernel ...
+
+[    0.000000] Booting Linux on physical CPU 0
+[    0.000000] Initializing cgroup subsys cpuset
+[    0.000000] Initializing cgroup subsys cpu
+[    0.000000] Linux version 3.4.39 (parallels@parallels-vm) (gcc version 4.6.3 20120201 (prerelease) (crosstool-NG linaro-1.13.1-2012.02-20120222 - Linaro GCC 2012.02) ) #16 SMP PREEMPT Mon Sep 3 17:03:11 CST 2018
+[    0.000000] CPU: ARMv7 Processor [410fc075] revision 5 (ARMv7), cr=10c5387d
+[    0.000000] CPU: PIPT / VIPT nonaliasing data cache, VIPT aliasing instruction cache
+[    0.000000] Machine: sun8i
+[    0.000000] cma: CMA: reserved 176 MiB at 75000000
+[    0.000000] Memory policy: ECC disabled, Data cache writealloc
+[    0.000000] script_init enter!
+[    0.000000] script_init exit!
+[    0.000000] PERCPU: Embedded 8 pages/cpu @c1a5a000 s10688 r8192 d13888 u32768
+[    0.000000] Built 1 zonelists in Zone order, mobility grouping on.  Total pages: 259840
+[    0.000000] Kernel command line: console=ttyS0,115200 root=/dev/mmcblk0p7 init=/init ion_cma_512m=120m ion_cma_1g=176m ion_carveout_512m=96m ion_carveout_1g=150m coherent_pool=4m loglevel=7 partitions=bootloader@mmcblk0p2:env@mmcblk0p5:boot@mmcblk0p6:system@mmcblk0p7:misc@mmcblk0p8:recovery@mmcblk0p9:cache@mmcblk0p10:metadata@mmcblk0p11:private@mmcblk0p12:UDISK@mmcblk0p1 boot_type=2 config_size=40768
+[    0.000000] PID hash table entries: 4096 (order: 2, 16384 bytes)
+[    0.000000] Dentry cache hash table entries: 131072 (order: 7, 524288 bytes)
+[    0.000000] Inode-cache hash table entries: 65536 (order: 6, 262144 bytes)
+[    0.000000] Memory: 1024MB = 1024MB total
+[    0.000000] Memory: 845372k/845372k available, 203204k reserved, 90112K highmem
+[    0.000000] Virtual kernel memory layout:
+[    0.000000]     vector  : 0xffff0000 - 0xffff1000   (   4 kB)
+[    0.000000]     fixmap  : 0xfff00000 - 0xfffe0000   ( 896 kB)
+[    0.000000]     vmalloc : 0xf0000000 - 0xff000000   ( 240 MB)
+[    0.000000]     lowmem  : 0xc0000000 - 0xef800000   ( 760 MB)
+[    0.000000]     pkmap   : 0xbfe00000 - 0xc0000000   (   2 MB)
+[    0.000000]     modules : 0xbf000000 - 0xbfe00000   (  14 MB)
+[    0.000000]       .text : 0xc0008000 - 0xc08e93d4   (9093 kB)
+[    0.000000]       .init : 0xc08ea000 - 0xc093c9c0   ( 331 kB)
+[    0.000000]       .data : 0xc093e000 - 0xc09b8b08   ( 491 kB)
+[    0.000000]        .bss : 0xc09ba098 - 0xc0b216c8   (1438 kB)
+[    0.000000] Preemptible hierarchical RCU implementation.
+<6>[    0.000000] NR_IRQS:416
+[    0.000000] try to syncboot of clk ats
+[    0.000000] try to syncboot of clk sdmmc2
+[    0.000000] try to syncboot of clk uart0
+[    0.000000] try to syncboot of clk pll_ddr1
+[    0.000000] try to syncboot of clk debe0
+[    0.000000] try to syncboot of clk dma
+[    0.000000] try to syncboot of clk sat
+[    0.000000] try to syncboot of clk pio
+[    0.000000] try to syncboot of clk mbus
+[    0.000000] try to syncboot of clk drc0
+[    0.000000] try to syncboot of clk mipidphy
+[    0.000000] try to syncboot of clk lcd0ch0
+[    0.000000] try to syncboot of clk axi
+[    0.000000] try to syncboot of clk mipidsi
+[    0.000000] Architected local timer running at 24.00MHz.
+[    0.000000] Switching to timer-based delay loop
+[    0.000000] sched_clock: 32 bits at 24MHz, resolution 41ns, wraps every 178956ms
+[    0.000000] Console: colour dummy device 80x30
+[    0.000257] Calibrating delay loop (skipped), value calculated using timer frequency.. 4800.00 BogoMIPS (lpj=24000000)
+[    0.000284] pid_max: default: 32768 minimum: 301
+[    0.000507] Security Framework initialized
+[    0.000556] SELinux:  Initializing.
+[    0.000637] AppArmor: AppArmor disabled by boot time parameter
+[    0.000741] Mount-cache hash table entries: 512
+[    0.001835] Initializing cgroup subsys debug
+[    0.001854] Initializing cgroup subsys cpuacct
+[    0.001866] Initializing cgroup subsys freezer
+[    0.001911] CPU: Testing write buffer coherency: ok
+[    0.001958] ftrace: allocating 23540 entries in 70 pages
+[    0.030323] CPU0: thread -1, cpu 0, socket 0, mpidr 80000000
+[    0.030343] [sunxi_smp_prepare_cpus] enter
+[    0.030389] Setting up static identity map for 0x40638ff0 - 0x40639048
+[    0.010000] CPU1: Booted secondary processor
+[    0.010000] CPU1: thread -1, cpu 1, socket 0, mpidr 80000001
+[    0.010000] CPU2: Booted secondary processor
+[    0.010000] CPU2: thread -1, cpu 2, socket 0, mpidr 80000002
+[    0.010000] CPU3: Booted secondary processor
+[    0.010000] CPU3: thread -1, cpu 3, socket 0, mpidr 80000003
+[    0.210192] Brought up 4 CPUs
+[    0.210192] SMP: Total of 4 processors activated (19200.00 BogoMIPS).
+[    0.210431] devtmpfs: initialized
+[    0.214457] pinctrl core: initialized pinctrl subsystem
+[    0.220308] dummy: 
+[    0.227534] NET: Registered protocol family 16
+[    0.243958] DMA: preallocated 4096 KiB pool for atomic coherent allocations
+[    0.244043] script_sysfs_init success
+[    0.244361] sunxi pinctrl probe enter
+[    0.245079] gpiochip_add: registered GPIOs 0 to 383 on device: sunxi-pinctrl
+[    0.246269] sunxi-pinctrl sunxi-pinctrl: initialized sunXi PIO driver
+[    0.246483] axp_pinctrl_probe enter...
+[    0.246666] gpiochip_add: registered GPIOs 1024 to 1029 on device: axp-pinctrl
+[    0.246689] mainkey total count : 79
+[    0.246700] mainkey name : product, pin count : 0
+[    0.246711] mainkey name : platform, pin count : 0
+[    0.246721] mainkey name : target, pin count : 0
+[    0.246731] mainkey name : key_detect_en, pin count : 0
+[    0.246743] mainkey name : power_sply, pin count : 0
+[    0.246755] mainkey name : card_boot, pin count : 0
+[    0.246766] mainkey name : card0_boot_para, pin count : 6
+[    0.246781] mainkey name : card2_boot_para, pin count : 6
+[    0.246794] mainkey name : twi_para, pin count : 2
+[    0.246806] mainkey name : uart_para, pin count : 2
+[    0.246819] mainkey name : force_uart_para, pin count : 2
+[    0.246831] mainkey name : jtag_para, pin count : 4
+[    0.246843] mainkey name : clock, pin count : 0
+[    0.246854] mainkey name : pm_para, pin count : 0
+[    0.246865] mainkey name : dram_para, pin count : 0
+[    0.246875] mainkey name : pm_para, pin count : 0
+[    0.246887] mainkey name : wakeup_src_para, pin count : 2
+[    0.246900] mainkey name : twi0, pin count : 2
+[    0.246912] mainkey name : twi1, pin count : 2
+[    0.246923] mainkey name : twi2, pin count : 2
+[    0.246935] mainkey name : uart0, pin count : 2
+[    0.246946] mainkey name : uart1, pin count : 4
+[    0.246958] mainkey name : uart2, pin count : 2
+[    0.246969] mainkey name : uart3, pin count : 2
+[    0.246981] mainkey name : uart4, pin count : 4
+[    0.246993] mainkey name : spi0, pin count : 4
+[    0.247005] mainkey name : spi1, pin count : 4
+[    0.247017] mainkey name : spi_devices, pin count : 0
+[    0.247028] mainkey name : spi_board0, pin count : 0
+[    0.247039] mainkey name : ctp_para, pin count : 2
+[    0.247050] mainkey name : ctp_list_para, pin count : 0
+[    0.247061] mainkey name : tkey_para, pin count : 0
+[    0.247071] mainkey name : motor_para, pin count : 1
+[    0.247083] map mainkey [motor_para] to pinctrl, map number [2]
+[    0.247097] mainkey name : ths_para, pin count : 0
+[    0.247107] mainkey name : cooler_table, pin count : 0
+[    0.247117] mainkey name : nand0_para, pin count : 19
+[    0.247130] mainkey name : disp_init, pin count : 0
+[    0.247142] mainkey name : lcd0_para, pin count : 2
+[    0.247155] mainkey name : pwm0_para, pin count : 1
+[    0.247167] mainkey name : pwm1_para, pin count : 1
+[    0.247179] mainkey name : csi0, pin count : 16
+[    0.247191] mainkey name : mmc0_para, pin count : 7
+[    0.247203] mainkey name : mmc1_para, pin count : 6
+[    0.247215] mainkey name : mmc2_para, pin count : 11
+[    0.247228] mainkey name : usbc0, pin count : 2
+[    0.247240] map mainkey [usbc0] to pinctrl, map number [2]
+[    0.247254] mainkey name : usbc1, pin count : 0
+[    0.247266] mainkey name : usb_feature, pin count : 0
+[    0.247277] mainkey name : msc_feature, pin count : 0
+[    0.247289] mainkey name : serial_feature, pin count : 0
+[    0.247301] mainkey name : gsensor_para, pin count : 0
+[    0.247313] mainkey name : gsensor_list_para, pin count : 0
+[    0.247326] mainkey name : rf_para, pin count : 1
+[    0.247337] map mainkey [rf_para] to pinctrl, map number [2]
+[    0.247349] mainkey name : wifi_para, pin count : 6
+[    0.247361] mainkey name : bt_para, pin count : 3
+[    0.247373] mainkey name : 3g_para, pin count : 4
+[    0.247386] mainkey name : gy_para, pin count : 0
+[    0.247396] mainkey name : gy_list_para, pin count : 0
+[    0.247407] mainkey name : ls_para, pin count : 1
+[    0.247418] mainkey name : ls_list_para, pin count : 0
+[    0.247428] mainkey name : compass_para, pin count : 0
+[    0.247439] mainkey name : gpio_para, pin count : 10
+[    0.247451] mainkey name : i2s0, pin count : 4
+[    0.247463] mainkey name : i2s1, pin count : 4
+[    0.247475] mainkey name : audio0, pin count : 1
+[    0.247487] mainkey name : pmu1_para, pin count : 0
+[    0.247497] mainkey name : pmu2_para, pin count : 0
+[    0.247508] mainkey name : recovery_key, pin count : 0
+[    0.247518] mainkey name : dvfs_table, pin count : 0
+[    0.247529] mainkey name : Vdevice, pin count : 2
+[    0.247540] mainkey name : s_uart0, pin count : 2
+[    0.247551] mainkey name : s_rsb0, pin count : 2
+[    0.247562] mainkey name : s_jtag0, pin count : 4
+[    0.247573] mainkey name : s_powchk, pin count : 0
+[    0.247584] mainkey name : mali_para, pin count : 0
+[    0.247595] mainkey name : dram_dvfs_table, pin count : 0
+[    0.247606] mainkey name : charging_type, pin count : 0
+[    0.247617] mainkey name : dram_scene_table, pin count : 0
+[    0.247628] mainkey name : leds_para, pin count : 1
+[    0.247639] mainkey name : gpu_mali400_0, pin count : 0
+[    0.247648] axp pinctrl driver probe ok
+[    0.249170] [sunxi-module]: [sunxi-module.0] probe success
+[    0.249218] script config pll3 to 297 Mhz
+[    0.249234] script config pll4 to 300 Mhz
+[    0.249270] script config pll6 to 600 Mhz
+[    0.249284] script config pll8 to 408 Mhz
+[    0.249306] script config pll9 to 480 Mhz
+[    0.249319] script config pll10 to 297 Mhz
+[    0.249328] sunxi_default_clk_init
+[    0.249336] try to set pll6ahb1 to 200000000
+[    0.249388] try to set ahb clk source to pll6ahb1
+[    0.249398] set ahb clk source to pll6ahb1
+[    0.249409] try to set ahb1 to 200000000
+[    0.249421] try to set apb1 to 100000000
+[    0.260291] bio: create slab <bio-0> at 0
+[    0.260487] [ARISC] :sunxi-arisc driver v1.60
+[    0.294552] [ARISC] :arisc version: [v0.0.76]
+[    0.294566] [sunxi-module]: arisc register success
+[    0.514124] [ARISC] :sunxi-arisc driver v1.60 startup succeeded
+[    0.515496] SCSI subsystem initialized
+[    0.515496] usbcore: registered new interface driver usbfs
+[    0.515496] usbcore: registered new interface driver hub
+[    0.515496] usbcore: registered new device driver usb
+[    0.515496] twi_chan_cfg()350 - [twi0] has no twi_regulator.
+[    0.515496] twi_chan_cfg()350 - [twi1] has no twi_regulator.
+[    0.515496] twi_chan_cfg()350 - [twi2] has no twi_regulator.
+[    0.515496] Linux video capture interface: v2.00
+[    0.520042] axp22_board axp22_board: AXP (CHIP ID: 0x06) detected
+[    0.522106] axp22_dcdc1: 1600 <--> 3400 mV at 3000 mV 
+[    0.522106] axp22_dcdc2: 600 <--> 1540 mV at 1100 mV 
+[    0.522106] axp22_dcdc3: 600 <--> 1860 mV at 1200 mV 
+[    0.522106] axp22_dcdc4: 600 <--> 1540 mV at 1100 mV 
+[    0.522106] axp22_dcdc5: 1000 <--> 2550 mV at 1500 mV 
+[    0.522106] axp22_rtc: 3000 mV 
+[    0.522106] axp22_aldo1: 700 <--> 3300 mV at 3000 mV 
+[    0.522106] axp22_aldo2: 700 <--> 3300 mV at 2500 mV 
+[    0.522106] axp22_aldo3: 700 <--> 3300 mV at 3000 mV 
+[    0.522106] axp22_dldo1: 700 <--> 3300 mV at 700 mV 
+[    0.522106] axp22_dldo2: 700 <--> 3300 mV at 1800 mV 
+[    0.522106] axp22_dldo3: 700 <--> 3300 mV at 700 mV 
+[    0.522106] axp22_dldo4: 700 <--> 3300 mV at 700 mV 
+[    0.522106] axp22_eldo1: 700 <--> 3300 mV at 1800 mV 
+[    0.522106] axp22_eldo1: supplied by axp22_dcdc1
+[    0.522106] axp22_eldo2: 700 <--> 3300 mV at 700 mV 
+[    0.522106] axp22_eldo2: supplied by axp22_dcdc1
+[    0.522106] axp22_eldo3: 700 <--> 3300 mV at 700 mV 
+[    0.522106] axp22_eldo3: supplied by axp22_dcdc1
+[    0.522106] axp22_dc5ldo: 700 <--> 1400 mV at 1100 mV 
+[    0.522106] axp22_ldoio0: 700 <--> 3300 mV at 3800 mV 
+[    0.522106] axp22_ldoio1: 700 <--> 3300 mV at 3800 mV 
+[    0.530025] axp22_dc1sw: at 700 mV 
+[    0.530057] axp22_dc1sw: supplied by axp22_dcdc1
+[    0.530424] input: axp22-supplyer as /devices/platform/axp22_board/axp22-supplyer.20/input/input0
+[    0.530668] now_rest_vol = 100
+[    0.530668] Advanced Linux Sound Architecture Driver Version 1.0.25.
+[    0.530877] Bluetooth: Core ver 2.16
+[    0.530947] NET: Registered protocol family 31
+[    0.530960] Bluetooth: HCI device and connection manager initialized
+[    0.530976] Bluetooth: HCI socket layer initialized
+[    0.530988] Bluetooth: L2CAP socket layer initialized
+[    0.531020] Bluetooth: SCO socket layer initialized
+[    0.531313] cfg80211: Calling CRDA to update world regulatory domain
+[    0.531352] Switching to clocksource arch_sys_counter
+[    0.553506] FS-Cache: Loaded
+[    0.553858] CacheFiles: Loaded
+[    0.565207] [sunxi_hci_sunxi]: sunxi-ehci1(restrict_gpio) is invalid
+[    0.565223] [sunxi_hci_sunxi]: sunxi-ehci1(drv vbus) is invalid
+[    0.565238] [sunxi_hci_sunxi]: get usb_regulator is nocare
+[    0.565269] [sunxi_hci_sunxi]: sunxi-ohci1(restrict_gpio) is invalid
+[    0.565281] [sunxi_hci_sunxi]: sunxi-ohci1(drv vbus) is invalid
+[    0.565293] [sunxi_hci_sunxi]: get usb_regulator is nocare
+[    0.565522] [usb_manager]: CONFIG_USB_SUNXI_USB0_OTG
+[    0.565549] no usbc(0) det_vbus gpio and try to axp det_pin
+[    0.565564] get usbc0(usb_restrict pin) failed
+[    0.565965] [sw_udc]: udc_init: version 20080411
+[    0.566478] [ddrfreq] dram_clk value is 552
+[    0.566489] [ddrfreq] sunxi_ddrfreq_max=552000
+[    0.566499] [ddrfreq] dram_type value is 3
+[    0.566509] [ddrfreq] dram_zq value is 0x3bbb
+[    0.566519] [ddrfreq] dram_odt_en value is 1
+[    0.566530] [ddrfreq] dram_para1 value is 0x10f20400
+[    0.566541] [ddrfreq] dram_para2 value is 0x1000
+[    0.566551] [ddrfreq] dram_mr0 value is 0x1c70
+[    0.566561] [ddrfreq] dram_mr1 value is 0x40
+[    0.566571] [ddrfreq] dram_mr2 value is 0x18
+[    0.566581] [ddrfreq] dram_mr3 value is 0x0
+[    0.566591] [ddrfreq] dram_tpr0 value is 0x47214f
+[    0.566601] [ddrfreq] dram_tpr1 value is 0x1c2294b
+[    0.566612] [ddrfreq] dram_tpr2 value is 0x61043
+[    0.566622] [ddrfreq] dram_tpr3 value is 0x0
+[    0.566632] [ddrfreq] dram_tpr4 value is 0x0
+[    0.566642] [ddrfreq] dram_tpr5 value is 0x0
+[    0.566652] [ddrfreq] dram_tpr6 value is 0x0
+[    0.566662] [ddrfreq] dram_tpr7 value is 0x0
+[    0.566672] [ddrfreq] dram_tpr8 value is 0x0
+[    0.566682] [ddrfreq] dram_tpr9 value is 0x0
+[    0.566692] [ddrfreq] dram_tpr10 value is 0x0
+[    0.566702] [ddrfreq] dram_tpr11 value is 0x0
+[    0.566712] [ddrfreq] dram_tpr12 value is 168
+[    0.566721] [ddrfreq] sunxi_ddrfreq_min=168000
+[    0.566732] [ddrfreq] dram_tpr13 value is 0x10901
+[    0.566892] [dsm] use sysconfig
+[    0.566901] [dsm] -----------Dram scene-freq Table------------
+[    0.566912] [dsm] scene =    0 	frequency = 552000KHz
+[    0.566922] [dsm] scene =    1 	frequency = 360000KHz
+[    0.566932] [dsm] scene =    2 	frequency = 240000KHz
+[    0.566942] [dsm] scene =    3 	frequency = 168000KHz
+[    0.566951] [dsm] --------------------------------------------
+[    0.567088] [ddrfreq] LV_count value is 3
+[    0.567111] [ddrfreq] ---------------Dram V-F Table---------------
+[    0.567122] [ddrfreq] voltage = 1100mv 	frequency = 552000KHz
+[    0.567133] [ddrfreq] voltage = 1100mv 	frequency = 360000KHz
+[    0.567144] [ddrfreq] voltage = 1100mv 	frequency =    0KHz
+[    0.567154] [ddrfreq] --------------------------------------------
+[    0.567334] [ddrfreq] last_vdd=1100
+[    0.567414] [ddrfreq] __sram_start: 0xc09b9000, __sram_end: 0xc09ba074, __sram_text_start: 0xf0000000, __sram_data_end: 0xf0001074
+[    0.567429] [ddrfreq] sunxi dramfreq probe ok!
+[    0.567768] NET: Registered protocol family 2
+[    0.568067] IP route cache hash table entries: 32768 (order: 5, 131072 bytes)
+[    0.568793] TCP established hash table entries: 131072 (order: 8, 1048576 bytes)
+[    0.570758] TCP bind hash table entries: 65536 (order: 7, 786432 bytes)
+[    0.571685] TCP: Hash tables configured (established 131072 bind 65536)
+[    0.571697] TCP: reno registered
+[    0.571713] UDP hash table entries: 512 (order: 2, 16384 bytes)
+[    0.571753] UDP-Lite hash table entries: 512 (order: 2, 16384 bytes)
+[    0.572118] NET: Registered protocol family 1
+[    0.572559] RPC: Registered named UNIX socket transport module.
+[    0.572572] RPC: Registered udp transport module.
+[    0.572581] RPC: Registered tcp transport module.
+[    0.572591] RPC: Registered tcp NFSv4.1 backchannel transport module.
+[    0.572853] Unpacking initramfs...
+[    0.667794] Freeing initrd memory: 1284K
+[    0.668273] [pm]aw_pm_init!
+[    0.668286] standby_mode = 1. 
+[    0.668295] wakeup src cnt is : 2. 
+[    0.668307] [exstandby]leave extended_standby_enable_wakeup_src : event 0x2000
+[    0.668319] [exstandby]leave extended_standby_enable_wakeup_src : wakeup_gpio_map 0x80
+[    0.668331] [exstandby]leave extended_standby_enable_wakeup_src : wakeup_gpio_group 0x0
+[    0.668344] [exstandby]leave extended_standby_enable_wakeup_src : event 0x2000
+[    0.668356] [exstandby]leave extended_standby_enable_wakeup_src : wakeup_gpio_map 0x280
+[    0.668368] [exstandby]leave extended_standby_enable_wakeup_src : wakeup_gpio_group 0x0
+[    0.668391] [wifi]: select wifi: rtl8188eu !!
+[    0.668671] [rtl8188eu]: exec rtl8188eu_wifi_gpio_init
+[    0.668688] [rtl8188eu]: module power name axp22_dldo1
+[    0.668699] [rtl8188eu]: module power ext1 name 
+[    0.668709] [rtl8188eu]: module power ext2 name 
+[    0.668719] [rtl8188eu]: rtl8188eu module power set by axp.
+[    0.668850] [rtl8188eu]: get power regulator  failed.
+[    0.668862] [rtl8188eu]: first time
+[    0.669059] [wifi_pm]: wifi gpio init is OK !!
+[    0.669115] sunxi_reg_init enter
+[    0.670054] audit: initializing netlink socket (disabled)
+[    0.670119] type=2000 audit(0.670:1): initialized
+[    0.670860] highmem bounce pool size: 64 pages
+[    0.672976] NTFS driver 2.1.30 [Flags: R/W].
+[    0.673186] fuse init (API version 7.18)
+[    0.673696] msgmni has been set to 1477
+[    0.676001] Block layer SCSI generic (bsg) driver version 0.4 loaded (major 253)
+[    0.676022] io scheduler noop registered
+[    0.676032] io scheduler deadline registered
+[    0.676132] io scheduler cfq registered (default)
+[    0.676575] pwm module init!
+[    0.677183] sw_uart_get_devinfo()1416 - uart0 has no uart_regulator.
+[    0.677202] sw_uart_get_devinfo()1416 - uart1 has no uart_regulator.
+[    0.677218] sw_uart_get_devinfo()1416 - uart2 has no uart_regulator.
+[    0.677235] sw_uart_get_devinfo()1416 - uart3 has no uart_regulator.
+[    0.677838] uart0: ttyS0 at MMIO 0x1c28000 (irq = 32) is a SUNXI
+[    0.677862] sw_console_setup()1176 - console setup baud 115200 parity n bits 8, flow n
+[    0.819359] console [ttyS0] enabled
+[    0.915744] uart1: ttyS1 at MMIO 0x1c28400 (irq = 33) is a SUNXI
+[    1.011337] uart2: ttyS2 at MMIO 0x1c28800 (irq = 34) is a SUNXI
+[    1.193233] uart3: ttyS3 at MMIO 0x1c28c00 (irq = 35) is a SUNXI
+[    2.594587] loop: module loaded
+[    2.598292] sunxi_spi_chan_cfg()1368 - [spi-0] has no spi_regulator.
+[    2.605397] sunxi_spi_chan_cfg()1368 - [spi-1] has no spi_regulator.
+[    2.612500] tun: Universal TUN/TAP device driver, 1.6
+[    2.618106] tun: (C) 1999-2004 Max Krasnyansky <maxk@qualcomm.com>
+[    2.625183] PPP generic driver version 2.4.2
+[    2.630135] PPP BSD Compression module registered
+[    2.635356] PPP Deflate Compression module registered
+[    2.641896] PPP MPPE Compression module registered
+[    2.647220] NET: Registered protocol family 24
+[    2.652206] PPTP driver version 0.8.5
+[    2.656582] ehci_hcd: USB 2.0 'Enhanced' Host Controller (EHCI) Driver
+[    2.663948] [sunxi_hci_sunxi]: [sunxi-ehci1]: probe, pdev->name: sunxi-ehci, pdev->id: 1, sunxi_ehci: 0xc0a13e2c
+[    2.675273] [sunxi_hci_sunxi]: [sunxi-ehci1]: open clock, is_open: 0
+[    2.702361] [sunxi_hci_sunxi]: [sunxi-ehci1]: Set USB Power ON
+[    2.708840] sunxi-ehci sunxi-ehci.1: SW USB2.0 'Enhanced' Host Controller (EHCI) Driver
+[    2.717764] sunxi-ehci sunxi-ehci.1: new USB bus registered, assigned bus number 1
+[    2.727918] sunxi-ehci sunxi-ehci.1: irq 104, io mem 0xf1c1a000
+[    2.750047] sunxi-ehci sunxi-ehci.1: USB 0.0 started, EHCI 1.00
+[    2.757377] hub 1-0:1.0: USB hub found
+[    2.761578] hub 1-0:1.0: 1 port detected
+[    2.766387] ohci_hcd: USB 1.1 'Open' Host Controller (OHCI) Driver
+[    2.773335] [sunxi_hci_sunxi]: [sunxi-ohci1]: probe, pdev->name: sunxi-ohci, pdev->id: 1, sunxi_ohci: 0xc0a13f30
+[    2.784660] [sunxi_hci_sunxi]: [sunxi-ohci1]: open clock, is_open: 0
+[    2.811745] sunxi-ohci sunxi-ohci.1: SW USB2.0 'Open' Host Controller (OHCI) Driver
+[    2.820276] sunxi-ohci sunxi-ohci.1: new USB bus registered, assigned bus number 2
+[    2.828706] sunxi-ohci sunxi-ohci.1: irq 105, io mem 0xf1c1a400
+[    2.894687] hub 2-0:1.0: USB hub found
+[    2.898861] hub 2-0:1.0: 1 port detected
+[    2.903765] usbcore: registered new interface driver cdc_acm
+[    2.910070] cdc_acm: USB Abstract Control Model driver for USB modems and ISDN adapters
+[    2.918957] Initializing USB Mass Storage driver...
+[    2.924491] usbcore: registered new interface driver usb-storage
+[    2.931175] USB Mass Storage support registered.
+[    2.936339] usbcore: registered new interface driver ums-alauda
+[    2.942966] usbcore: registered new interface driver ums-cypress
+[    2.949672] usbcore: registered new interface driver ums-datafab
+[    2.956403] usbcore: registered new interface driver ums_eneub6250
+[    2.963329] usbcore: registered new interface driver ums-freecom
+[    2.970056] usbcore: registered new interface driver ums-isd200
+[    2.976666] usbcore: registered new interface driver ums-jumpshot
+[    2.983485] usbcore: registered new interface driver ums-karma
+[    2.989997] usbcore: registered new interface driver ums-onetouch
+[    2.996836] usbcore: registered new interface driver ums-realtek
+[    3.003622] usbcore: registered new interface driver ums-sddr09
+[    3.010377] usbcore: registered new interface driver ums-sddr55
+[    3.016988] usbcore: registered new interface driver ums-usbat
+[    3.023612] usbcore: registered new interface driver usbserial
+[    3.030112] usbserial: USB Serial Driver core
+[    3.034997] usbcore: registered new interface driver option
+[    3.041243] USB Serial support registered for GSM modem (1-port)
+[    3.048255] [sw_udc]: [sunxi_usb_udc]: binding gadget driver 'android_usb'
+[    3.055921] [sw_udc]: alloc request: ep(0xc0986ed0, ep0, 64), req(0xee9b8640)
+[    3.063870] sunxi_udc_set_selfpowered_2300: usb device is not active
+[    3.070938] [sw_udc]: sunxi_udc_pullup, is_on = 0
+[    3.076165] sunxi_udc_set_pullup_2317: usb device is not active
+[    3.082847] file system registered
+[    3.088489] android_usb gadget: Mass Storage Function, version: 2009/09/11
+[    3.096157] android_usb gadget: Number of LUNs=2
+[    3.101300]  lun0: LUN: removable file: (no medium)
+[    3.106714]  lun1: LUN: removable file: (no medium)
+[    3.112517] android_bind, serial_unique = 1
+[    3.117166] sunxi_udc_set_selfpowered_2300: usb device is not active
+[    3.124249] android_usb gadget: android_usb ready
+[    3.129486] [sw_hcd0]: usb host driver initialize........
+[    3.135583] [sw_hcd0]: open_usb_clock
+[    3.139971] [sunxi_hcd0]: host_init_state = 0
+[    3.145031] [sw_hcd0]: platform is usb host
+[    3.149727] [sw_hcd0]: sunxi_hcd_init_controller: sunxi_hcd_host0: USB Host mode controller at f1c19000 using PIO, IRQ 103
+[    3.162047] sunxi_hcd_host0 sunxi_hcd_host0: sunxi_hcd host driver
+[    3.168914] sunxi_hcd_host0 sunxi_hcd_host0: new USB bus registered, assigned bus number 3
+[    3.178817] hub 3-0:1.0: USB hub found
+[    3.183014] hub 3-0:1.0: 1 port detected
+[    3.187743] [sw_hcd0]: sunxi_usb_host0_disable start
+[    3.193278] [sw_hcd0]: sunxi_hcd_wait_for_disconnect cnt=0
+[    3.199373] [sunxi_hcd_host0]: Set USB Power OFF
+[    3.204613] -------sunxi_hcd0_soft_disconnect---------
+[    3.210318] wrn: hcd is not enable, need not stop hcd
+[    3.215936] [sunxi_hcd_host0]: Set USB Power OFF
+[    3.221198] [sw_hcd0]: close_usb_clock
+[    3.225380] [sw_hcd0]: sunxi_usb_host0_disable end
+[    3.231087] mousedev: PS/2 mouse device common for all mice
+[    3.238129] sunxi-rtc sunxi-rtc: rtc core: registered sunxi-rtc as rtc0
+[    3.245630] sunxi cedar version 0.1 
+[    3.249647] [cedar]: install start!!!
+[    3.253956] [cedar]: install end!!!
+[    3.260920] axp22_dcdc1: Failed to create debugfs directory
+[    3.268806] device-mapper: ioctl: 4.22.0-ioctl (2011-10-19) initialised: dm-devel@redhat.com
+[    3.278244] Bluetooth: HCI UART driver ver 2.2
+[    3.283270] Bluetooth: HCI H4 protocol initialized
+[    3.288587] Bluetooth: HCI BCSP protocol initialized
+[    3.294205] usbcore: registered new interface driver btusb
+[    3.300311] Bluetooth: Generic Bluetooth SDIO driver ver 0.1
+[    3.306624] Bluetooth: BlueSleep Mode Driver Ver 1.1
+[    3.312375] Bluetooth: get rtl8723bs rtl8723bs_bt_host_wake gpio failed
+[    3.312381] 
+[    3.321788] autohotplug_init init ok
+[    3.325785] sunxi_cpufreq_initcall: clocks pll=1008000000,cpu=1008000000,axi=336000000
+[    3.334605] cur: pll=1008000000, cpudiv=1, axidiv=3
+[    3.340055] axp22_dcdc3: Failed to create debugfs directory
+[    3.346254] sunxi_cpufreq_initcall, get cpu frequency from sysconfig, max freq: 1200MHz, min freq: 408MHz
+[    3.356923] -------------------CPU V-F Table--------------------
+[    3.363605] 	frequency = 1536000KHz 	voltage = 1500mv
+[    3.369210] 	frequency = 1344000KHz 	voltage = 1460mv
+[    3.374829] 	frequency = 1200000KHz 	voltage = 1320mv
+[    3.380496] 	frequency = 1008000KHz 	voltage = 1200mv
+[    3.386102] 	frequency = 816000KHz 	voltage = 1100mv
+[    3.391641] 	frequency = 648000KHz 	voltage = 1040mv
+[    3.397149] 	frequency =    0KHz 	voltage = 1040mv
+[    3.402480] 	frequency =    0KHz 	voltage = 1040mv
+[    3.407794] -----------------------------------------------------
+[    3.416974] [mmc]: SD/MMC/SDIO Host Controller Driver(v1.85 2014-08-01 15:11) Compiled in Aug 16 2018 at 00:48:23
+[    3.428380] [mmc]: sunxi_mci_init
+[    3.432085] [mmc]: get mmc0's power supply 'axp22_dcdc1' ok
+[    3.438263] [mmc]: get mmc0's 2xmode fail
+[    3.442718] [mmc]: get mmc0's ddrmode fail
+[    3.447258] [mmc]: get mmc0's sdc_ex_dly_used failed, use default dly
+[    3.454422] [mmc]: get mmc1's sdc_power failed
+[    3.459346] [mmc]: get mmc1's 2xmode fail
+[    3.463801] [mmc]: get mmc1's ddrmode fail
+[    3.468340] [mmc]: get mmc1's sdc_ex_dly_used failed, use default dly
+[    3.475508] [mmc]: get mmc2's power supply 'axp22_dcdc1' ok
+[    3.481699] [mmc]: get mmc2's 2xmode ok, val = 1
+[    3.486816] [mmc]: get mmc2's ddrmode fail
+[    3.491367] [mmc]: get mmc2's sdc_ex_dly_used failed, use default dly
+[    3.498510] [mmc]: MMC host used card: 0x7, boot card: 0x4, io_card 2
+[    3.506753] [mmc]: mmc not poweroff notifiy
+[    3.511422] [mmc]: sdc2 set ios: clk 0Hz bm OD pm OFF vdd 3.3V width 1 timing LEGACY(SDR12) dt B
+[    3.522256] [mmc]: sdc2 Probe: base:0xf1c11000 irq:94 sg_cpu:f0020000(75404000) ret 0.
+[    3.522272] [mmc]: sdc2 set ios: clk 0Hz bm PP pm UP vdd 3.3V width 1 timing LEGACY(SDR12) dt B
+[    3.523804] [mmc]: sdc2 card_power_on start...
+[    3.523833] axp22_dcdc1: Failed to create debugfs directory

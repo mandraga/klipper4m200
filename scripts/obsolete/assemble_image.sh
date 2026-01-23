@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# 
+# Reassembles an image taken in parts using a script shell from linux injecting commands to u-boot shell.
 set -euo pipefail
 
 BASE_DIR="/home/patrick/moredata/emmc"

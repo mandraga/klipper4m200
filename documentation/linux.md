@@ -179,6 +179,10 @@ dmesg | grep dsi
 bootdelay
 bootdelay
 ```
+# This reload my be needed on the nearly working version.
+sudo modprobe -r panel-mtf0397swi
+sudo modprobe panel-mtf0397swi
+
 apt update && sudo apt install libdrm-tests mesa-utils kmscube
 kmscube
 ```

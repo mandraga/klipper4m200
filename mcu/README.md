@@ -110,19 +110,24 @@ uart2_cts_rts_pb_pins: uart2-cts-rts-pb-pins {
 
 RESET; VSS/GND; PA13;     PA14;        PA10;       PA9;      BOOT0; 3.3V
               JTMS-SWDIO  JTCK-SWCLK  USART1_RX  USART1_TX
-
-1 3.3V (square pin)
-2 BOOT0
-3 PA9      USART1_TX
-4 PA10     USART1_RX
-5 PA14     JTCK-SWCLK
-6 PA13     JTMS-SWDIO
+                                           
+                                           STLINK
+1 3.3V (square pin)                     1 3.3V (square pin)    X
+2 BOOT0                                 2 SWCLK                to 5
+3 PA9      USART1_TX                    3 GND                  to 7
+4 PA10     USART1_RX                    4 SWDIO                to 6
+5 PA14     JTCK-SWCLK                   5 RESET                to 8
+6 PA13     JTMS-SWDIO                   6 SWO                  X
 7 VSS/GND
 8 RESET
 
 ### Katapult configuration
 
 Replacing the vendor bootloader with the katapult bootloader using the debug port.
+
+To configure the Katapult bootloader. From the katapult repo: use the following `make menuconfig` options.
+
+![Katapult Menuconfig](katapultmenuconfig.png)
 
 In the Katapult repo:
 ```
@@ -140,20 +145,89 @@ make
 
 It generates ./out/katapult.bin
 That's what we flash as bootloader.
-Using the Katapult's flashtool on the debug header.
-```
-sudo python3 ./scripts/flashtool.py -d /dev/ttyUSB0 -b 115200 -f out/katapult.bin
-```
-or
+Using the Katapult's flashtool on the debug header. This erases the chip and there is no coming back to the Zortrax firmware and software suite.
 
 ```
-sudo stm32flash -b 115200 -w out/katapult.bin /dev/ttyUSB0
+$ sudo apt update
+$ sudo apt install stlink-tools openocd
+
+# Unlock the chip with open ocd
+# Start openocd
+$ openocd -f interface/stlink.cfg -f target/stm32f1x.cfg
+
+# In another console:
+$ telnet localhost 4444
+Trying 127.0.0.1...
+Connected to localhost.
+Escape character is '^]'.
+Open On-Chip Debugger
+> reset halt
+[stm32f1x.cpu] halted due to debug-request, current mode: Thread 
+xPSR: 0x01000000 pc: 0xfffffffe msp: 0xfffffffc
+> stm32f1x unlock 0
+device id = 0x10036414
+STM32 flash size failed, probe inaccurate - assuming 512k flash
+flash size = 512 KiB
+stm32x unlocked.
+INFO: a reset or power cycle is required for the new settings to take effect.
+
+> shutdown
+shutdown command invoked
+Connection closed by foreign host.
+```
+Then reset the chip and use st-flash to finish the job.
+```
+$ st-info --probe
+
+Found 1 stlink programmers
+  version:    V2J16
+  serial:     303030303030303030303031
+  flash:      262144 (pagesize: 2048)
+  sram:       65536
+  chipid:     0x414
+  dev-type:   F1xx_HD
+
+
+$ st-flash erase
+st-flash 1.8.0
+2026-01-23T23:15:39 INFO common.c: F1xx_HD: 64 KiB SRAM, 24544 KiB flash in at least 2 KiB pages.
+Mass erasing...
+Mass erase completed successfully.
+
+$ st-flash write ./out/katapult.bin.bin 0x8000000
+
+udo st-flash write ./out/katapult.bin 0x8000000
+st-flash 1.8.0
+2026-01-23T23:28:59 INFO common.c: F1xx_HD: 64 KiB SRAM, 256 KiB flash in at least 2 KiB pages.
+file ./out/katapult.bin md5 checksum: 3f9582c8e129668f7be5ef1487634c7, stlink checksum: 0x0004b37d
+2026-01-23T23:28:59 INFO common_flash.c: Attempting to write 3348 (0xd14) bytes to stm32 address: 134217728 (0x8000000)
+-> Flash page at 0x8000800 erased (size: 0x800)
+2026-01-23T23:28:59 INFO flash_loader.c: Starting Flash write for VL/F0/F3/F1_XL
+2026-01-23T23:28:59 INFO flash_loader.c: Successfully loaded flash loader in sram
+2026-01-23T23:28:59 INFO flash_loader.c: Clear DFSR
+2026-01-23T23:28:59 INFO flash_loader.c: Clear CFSR
+2026-01-23T23:28:59 INFO flash_loader.c: Clear HFSR
+  2/2   pages written
+2026-01-23T23:28:59 INFO common_flash.c: Starting verification of write complete
+2026-01-23T23:28:59 INFO common_flash.c: Flash written and verified! jolly good!
 ```
 
-### Some issue with keeping the bootloader active
+STM32CubeIde can also be use to the same goal.
 
-https://github.com/Arksine/katapult/issues/135
+### Flashing the klipper software
 
+Now from the microcontroller.
+To configure the Klipper firmware, you can use the following `make menuconfig` options from the klipper repo. Refer to the image below for guidance:
+
+![Klipper Menuconfig](klippermenuconfig.png)
+
+Make sure to select the appropriate options for your setup.
+```
+make menuconfig
+make
+sudo apt install python3-serial
+sudo python3 ./katapult/scripts/flashtool.py -d /dev/ttyS2 -b 115200 -f ./klipper/out/klipper.bin
+```
 
 ### Programming the firmware on the machine:
 
@@ -167,7 +241,27 @@ openocd -f interface/stlink-v2.cfg -f target/stm32f1x.cfg -c "init; reset halt; 
 ```
 
 ```
-sudo apt update
-sudo apt install python3-serial
-python3 flashtool.py -d <serial device> -b <baud_rate> -f ~/klipper/out/klipper.bin
+~$sudo apt update
+~$sudo apt install python3-serial
+~$ sudo python3 ./katapult/scripts/flashtool.py -d /dev/ttyS2 -b 115200 -f ./klipper/out/klipper.bin
+Connecting to Serial Device /dev/ttyS2, baud 115200
+Detected Klipper binary version v0.13.0-464-g48f0b3ca, MCU: stm32f103xe
+Attempting to connect to bootloader
+Katapult Connected
+Software Version: v0.0.1-110-gb0bf421
+Protocol Version: 1.1.0
+Block Size: 64 bytes
+Application Start: 0x8002000
+MCU type: stm32f103xe
+Flashing '/home/patrick/klipper/out/klipper.bin'...
+
+[##################################################]
+
+Write complete: 19 pages
+Verifying (block count = 581)...
+
+[##################################################]
+
+Verification Complete: SHA = 172D96CFB91217FCE786FE5B814120BF571D1145
+Programming Complete
 ```

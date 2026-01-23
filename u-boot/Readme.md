@@ -1,0 +1,1 @@
+Find a compatible u-boot here: git@github.com:mandraga/u-boot.git

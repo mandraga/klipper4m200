@@ -2,9 +2,9 @@
 /*
  * Driver based on sunxi sl698ph_720p and mainline panel-himax-hx8394
  * to suport the "MTF0397SWI-06" tft lcd panl using the ic OTM8019A.
- * Copyright (C) 2021 Patrick Areny
+ * Copyright (C) 2025 Patrick Areny
  * 
- * Based on driver for panels based on Himax HX8394 controller, such as:
+ * Based on the driver for panels based on Himax HX8394 controller, such as:
  * - HannStar HSD060BHW4 5.99" MIPI-DSI panel
  * Copyright (C) 2021 Kamil Trzciński
  *
@@ -89,14 +89,15 @@ static inline struct mtf0397swi *panel_to_mtf0397swi(struct drm_panel *ppanel)
 
 static int mtf0397swi_init_sequence(struct mtf0397swi *ctx)
 {
+	dev_info(ctx->dev, "mtf0397swi init_sequence start\n");
 	struct mipi_dsi_device *dsi = to_mipi_dsi_device(ctx->dev);
 	mipi_dsi_dcs_write_seq(dsi, 0x00, 0x00);
 	mipi_dsi_dcs_write_seq(dsi, 0xFF, 0x80, 0x19, 0x01);
-	dev_info(ctx->dev, "sent 0xFF, 0x80, 0x19, 0x01\n");
+	//dev_info(ctx->dev, "sent 0xFF, 0x80, 0x19, 0x01\n");
 	mipi_dsi_dcs_write_seq(dsi, 0x00, 0x80);
-	dev_info(ctx->dev, "sent 0x00, 0x80\n");
+	//dev_info(ctx->dev, "sent 0x00, 0x80\n");
 	mipi_dsi_dcs_write_seq(dsi, 0xFF, 0x80, 0x19);
-	dev_info(ctx->dev, "sent  0xFF, 0x80, 0x19\n");
+	//dev_info(ctx->dev, "sent  0xFF, 0x80, 0x19\n");
 	mipi_dsi_dcs_write_seq(dsi, 0x00, 0x8A);
 	mipi_dsi_dcs_write_seq(dsi, 0xC4, 0x40);
 	mipi_dsi_dcs_write_seq(dsi, 0x00, 0xA6);

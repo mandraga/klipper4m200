@@ -52,7 +52,8 @@ https://www.kernel.org/doc/html/latest/kbuild/modules.html
 Compilation
 
 ```
-scp -o IdentitiesOnly=yes panel-mtf0397swi.c root@192.168.1.159:/home/patrick/lcd_driver
+scp -o IdentitiesOnly=yes Makefile root@192.168.1.158:/home/patrick/lcd_driver
+scp -o IdentitiesOnly=yes panel-mtf0397swi.c root@192.168.1.158:/home/patrick/lcd_driver
 echo "obj-m += panel-mtf0397swi.o" > Makefile
 make -C /lib/modules/`uname -r`/build M=$PWD
 ```

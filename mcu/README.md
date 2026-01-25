@@ -1,19 +1,12 @@
 ## MCU compilation for the MCU board
 
-The MCU would be a STM32F103VC on the M200 and the stepper motor drivers are A4988.
+The MCU is a STM32F103VC on the M200 and the stepper motor drivers are A4988.
 Format LQFP100
 
 STM32F103VC
-Flash memory: 256 KB
-SRAM: 48 KB
-Package: LQFP100
-I/O pins: Up to 80
-
-STM32F103VE
-Flash memory: 512 KB
+Flash memory: 256KB
 SRAM: 64 KB
 Package: LQFP100
-I/O pins: Up to 80
 
 ### From the Marlin port
 
@@ -138,7 +131,6 @@ No deployment application
 Clock reference: 8Mhz crystal
 Communicaiton iunterface: USART2 PA3/PA2
 Application start offset 8KB offset.
-115200 baudrate instead of 250000 given the electric noise inside the machine.
 
 make
 ```
@@ -146,6 +138,8 @@ make
 It generates ./out/katapult.bin
 That's what we flash as bootloader.
 Using the Katapult's flashtool on the debug header. This erases the chip and there is no coming back to the Zortrax firmware and software suite.
+The stock MCU is read protected, we must do a mass erase prior to flashing Katapult.
+An uart is not enough, we need the SWDIO SWDCLK pins connected to a STLINK V2 system.
 
 ```
 $ sudo apt update
@@ -194,9 +188,8 @@ st-flash 1.8.0
 Mass erasing...
 Mass erase completed successfully.
 
-$ st-flash write ./out/katapult.bin.bin 0x8000000
+$ st-flash write ./out/katapult.bin 0x8000000
 
-udo st-flash write ./out/katapult.bin 0x8000000
 st-flash 1.8.0
 2026-01-23T23:28:59 INFO common.c: F1xx_HD: 64 KiB SRAM, 256 KiB flash in at least 2 KiB pages.
 file ./out/katapult.bin md5 checksum: 3f9582c8e129668f7be5ef1487634c7, stlink checksum: 0x0004b37d
@@ -216,7 +209,8 @@ STM32CubeIde can also be use to the same goal.
 
 ### Flashing the klipper software
 
-Now from the microcontroller.
+Now from the single board computer.
+
 To configure the Klipper firmware, you can use the following `make menuconfig` options from the klipper repo. Refer to the image below for guidance:
 
 ![Klipper Menuconfig](klippermenuconfig.png)
@@ -225,26 +219,13 @@ Make sure to select the appropriate options for your setup.
 ```
 make menuconfig
 make
-sudo apt install python3-serial
-sudo python3 ./katapult/scripts/flashtool.py -d /dev/ttyS2 -b 115200 -f ./klipper/out/klipper.bin
-```
 
-### Programming the firmware on the machine:
-
-The stock MCU is read protected, we must do a mass erase prior to flashing Katapult.
-An uart is not enough, we need the SWDIO SWDCLK pins connected to a STLINK V2 system.
-
-To flash from a discovery board: https://scienceprog.com/downloading-binaries-using-stm32-st-link-utility/
-
-```
-openocd -f interface/stlink-v2.cfg -f target/stm32f1x.cfg -c "init; reset halt; mdw 0x40022000 4; shutdown"
-```
-
-```
-~$sudo apt update
-~$sudo apt install python3-serial
-~$ sudo python3 ./katapult/scripts/flashtool.py -d /dev/ttyS2 -b 115200 -f ./klipper/out/klipper.bin
-Connecting to Serial Device /dev/ttyS2, baud 115200
+~$ sudo apt update
+~$ sudo apt install python3-serial
+~$ sudo service klipper stop
+# Reset the device with the debug port
+~$ sudo python3 ./katapult/scripts/flashtool.py -d /dev/ttyS2 -b 250000 -f ./klipper/out/klipper.bin
+Connecting to Serial Device /dev/ttyS2, baud 250000
 Detected Klipper binary version v0.13.0-464-g48f0b3ca, MCU: stm32f103xe
 Attempting to connect to bootloader
 Katapult Connected
@@ -262,6 +243,17 @@ Verifying (block count = 581)...
 
 [##################################################]
 
-Verification Complete: SHA = 172D96CFB91217FCE786FE5B814120BF571D1145
+Verification Complete: SHA = 937D058BE91B1866070F106B6476898C47725810
 Programming Complete
+```
+
+### Re enter bootloader
+
+If fuser of the Klipper serial port returns something, then stop th eKlipper service.
+```
+fuser /dev/ttyS2
+/dev/ttyS2:            946
+sudo service klipper stop
+sudo python3 ./katapult/scripts/flashtool.py -d /dev/ttyS2 -b 250000 -f ./klipper/out/klipper.bin
+sudo service klipper start
 ```

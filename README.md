@@ -7,8 +7,9 @@ This firmware is based on Debian/Armbian and allows to install klipper on the m2
 
 ## Access the internal single board comuter
 
-You need a serial port on the UART0 J5 connector.
-Plug a special USB-A to USB-A cable with no 5V connexion to be able to use the FEL mode.
+You need:
+* a serial port on the UART0 J5 connector for the u-boot and Linux serial console.
+* a special USB-A to USB-A cable with no 5V connexion to be able to use the FEL mode.
 
 At boot, press 2 on the serial console, it will start in FEL mode.
 You should see this on "dmesg -w":
@@ -21,23 +22,23 @@ sunxi-tools$ sudo ./sunxi-fel uboot u-boot-sunxi-with-spl.bin
 ```
 It starts uboot and you can browse files and dump data.
 
-Then you can use this uboot prompt to boot Armbian from the usb stick.
+Then you can use this uboot prompt to load the dtb and the kernel, then boot Armbian from the usb stick.
 
 Once in Linux, a set of scripts allows you to:
 - dump the original disk image on the usb stick.
-- flash the device with a custom image, like a Debian.
+- dump the vendor u-boot env
+- write your u-boot-env
+- write u-boot-dtb.bin to the FAT16 partition
+
 
 ## Download the image
 
-
-
 ## At first boot
 
-Install the u-boot data on the emmc such as to automaticly boot from the USB drive.
-The original emmc is not that much altered, only the sunxi u-boot. You can resore it
-from the console or with a script writing the original u-boot/m200plus_sunxiuboot_env.img.backup file.
+Install the new u-boot env and mainline uboot binary on the emmc such as to automaticly boot from the USB drive.
+The original emmc is not that much altered, only the env. You can resore it with a backup file or in vendor u-boot console.
 
-### Get the network working
+### Get the network
 
 On version 2.1, Linux should detect the ethernet usb adapter on the USB port.
 On version 1.1, since USB0 was cut to break in, you need to connect some ethernet adapter to the usb port or hub before.
@@ -48,9 +49,14 @@ Connect your printer to the network.
 Follow this tutorial
 https://travis90x.altervista.org/armbian-first-boot-and-install-klipper/
 
+```
+git clone https://github.com/dw-0/kiauh.git
+./kiauh/kiauh.sh
+```
+
 ### Flash the microcontroller and start Klipper
 
-Select STM32103CE, uart communication and 28Kb bootloader offset.
+See the Readme in the MCU folder, you need an ST-Link programmer to mass erase the chip.
 
 ## Klipper config
 

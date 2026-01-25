@@ -16,3 +16,6 @@
 [submodule "submodules/katapult"]
 	path = submodules/katapult
 	url = https://github.com/Arksine/katapult.git
+[submodule "submodules/zmxxxp-re"]
+	path = submodules/zmxxxp-re
+	url = https://github.com/zharijs/zmxxxp-re.git

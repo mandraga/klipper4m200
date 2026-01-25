@@ -205,7 +205,7 @@ file ./out/katapult.bin md5 checksum: 3f9582c8e129668f7be5ef1487634c7, stlink ch
 2026-01-23T23:28:59 INFO common_flash.c: Flash written and verified! jolly good!
 ```
 
-STM32CubeIde can also be use to the same goal.
+STM32Programmer can also be used to the same goal.
 
 ### Flashing the klipper software
 
@@ -249,11 +249,12 @@ Programming Complete
 
 ### Re enter bootloader
 
-If fuser of the Klipper serial port returns something, then stop th eKlipper service.
+If fuser of the Klipper serial port returns something, then stop the Klipper service.
 ```
 fuser /dev/ttyS2
 /dev/ttyS2:            946
 sudo service klipper stop
+# Reset the mcu board using the debug port
 sudo python3 ./katapult/scripts/flashtool.py -d /dev/ttyS2 -b 250000 -f ./klipper/out/klipper.bin
 sudo service klipper start
 ```

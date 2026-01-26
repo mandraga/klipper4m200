@@ -1,4 +1,6 @@
 #/!bin/bash
+# Work in progress
+
 # Copy the mainline U-Boot binary and env file to the FAT16 partition on the Zortrax m200+ emmc
 DATA_DIR="/boot/"
 mkdir -p /mnt/fat16disk

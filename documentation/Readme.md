@@ -34,7 +34,7 @@ https://github.com/rpanfili/sk200
 ### Machine alike
 
 https://linux-sunxi.org/Sinlinx_SinA33
-Same except 1GB ram instead of 2GB
+Nearly the same, when looked from a distance.
 
 ## Zortrax Machine
 
@@ -49,19 +49,7 @@ Pinout in A33-core3.pdf
 Adafruit SSDIO breakout board:
 https://www.adafruit.com/product/4682
 
-### Cryptochip
-
-https://kamami.pl/en/cryptographic-module/587245-stemma-qt-atecc608-module-with-atecc608a-cryptographic-chip-5906623430222.html
-
-Sort of i2c interface. It is used to communicate with the TPM/cryptochip.
-https://github.com/torvalds/linux/blob/master/drivers/char/tpm/tpm_tis_i2c.c
-All the TPM kernel modules on i2c:
-https://gemfury.com/dfinimundi/deb:linux-headers-current-sunxi64/-/content/usr/src/linux-headers-5.8.10-sunxi64/drivers/char/tpm/Kconfig
-
--> replace the TPM by an accelerometer plus an optical depth sensor.
-Using a ribbon cable to a micromatch or directly a long ribbon cable to the board.
-
-### Connecteur
+### Connector
 
 C'est du Molex.
 
@@ -77,4 +65,3 @@ https://github.com/u-boot/u-boot/blob/master/doc/board/allwinner/sunxi.rst
 ### Debian
 https://wiki.debian.org/InstallingDebianOn/Allwinner
 
-## Installing linux on the board

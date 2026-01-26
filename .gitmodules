@@ -19,3 +19,6 @@
 [submodule "submodules/zmxxxp-re"]
 	path = submodules/zmxxxp-re
 	url = https://github.com/zharijs/zmxxxp-re.git
+[submodule "submodules/u-boot"]
+	path = submodules/u-boot
+	url = https://github.com/mandraga/u-boot.git

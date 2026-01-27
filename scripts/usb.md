@@ -1,7 +1,7 @@
 ## UMS mode
 
 Uboot has a UMS mode such as the emmc becomes a usb mass storage device. But I could not make it work on the m200. The command was not visible and, if the otg was enabled in the device tree, uboot crashed.
-Plus the USB0 port has weird settings with a regulator at 3V (see the fex file).
+Plus the USB0 port has weird settings with a regulator at 3V (see the fex file). And VBUS on the OTG port is enabled through a pin enable.
 
 ## Transfering an image without usb
 

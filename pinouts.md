@@ -34,3 +34,5 @@ USB0/OTG on P4
 
 ## Ethernet
 
+On rev1 we have a soldered realtek ehternet chip. We cut it out in order to solder an usb hub.
+On rev2 we have an USB2.0 Hub and the realtek ehternet chip is there. No need to cut or solder anything.

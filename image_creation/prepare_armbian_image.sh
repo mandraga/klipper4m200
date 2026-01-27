@@ -1,4 +1,6 @@
 #!/bin/bash
+# Work in progress
+
 # Assuming we have a usb drive with the Armbian on it.
 # Copy the dtb, u-boot, u-boot-env.txt (the zImage can come from Armbian).
 

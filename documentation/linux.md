@@ -66,9 +66,33 @@ depmod -a
 modprobe panel-mtf0397swi
 ```
 
+### Testing the screen
+
+```
+dmesg | grep drm
+dmesg | grep dsi
+```
+bootdelay
+bootdelay
+```
+# This reload my be needed on the nearly working version.
+sudo modprobe -r panel-mtf0397swi
+sudo modprobe panel-mtf0397swi
+
+modetest -c
+
+apt update && sudo apt install libdrm-tests mesa-utils kmscube
+kmscube
+
+# Display a 800x600 image (stop klipperscreen if installed: "sudo systemctl stop KlipperScreen")
+sudo apt install fbi
+fbi -T 1 -d /dev/fb0 -a ../OIP-2008394785.jpeg 
+```
+
+
 ## Compilation
 
-Go to the armbian build repo and call ./compile.sh, then select kernel compilation.
+Go to the armbian build repo and call "./compile.sh INSTALL_HEADERS=yes", then select kernel compilation.
 TODO: add the zortrax to armbian "at your own risk" boards
 Select legacy kernel with:
 
@@ -95,7 +119,7 @@ and then copy on the system
 Copy in
 /lib/modules/6.12.51-current-sunxi/kernel/drivers/
 
-Does not work because of some timestamp anf ebug info not matching the image
+Does not work because of some timestamp anf debug info not matching the image
 
 ### Inserting the module code in the source
 
@@ -170,28 +194,13 @@ evtest
 dtc -I fs /proc/device-tree | sed -n '/panel@/,/};/p' 
 ```
 
-### Testing the screen
-
-```
-dmesg | grep drm
-dmesg | grep dsi
-```
-bootdelay
-bootdelay
-```
-# This reload my be needed on the nearly working version.
-sudo modprobe -r panel-mtf0397swi
-sudo modprobe panel-mtf0397swi
-
-apt update && sudo apt install libdrm-tests mesa-utils kmscube
-kmscube
-```
 
 ### Camera
 
 It is a GalaxyCore GC2145 2MP sensor
 Already enabled CONFIG_VIDEO_GC2145=m
 But the csi driver seems not to be compatible and the i2cdetect gives nothing.
+Maybe an enable pin problem.
 So for now it stays deactivated.
 
 Drivers on the vendor system:

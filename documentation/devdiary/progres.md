@@ -39,7 +39,7 @@ INet-D978 Rev 02	                    sun8i-a33-inet-d978-rev2.dtb
 Q8 A33 Tablet	                        sun8i-a33-ippo-q8h-v1.2.dtb
 Q8 A33 Tablet	                        sun8i-a33-q8-tablet.dtb
 
-#### Single board comouters (very similar)
+#### Single board computers (very similar)
 Olimex A33-OLinuXino	                sun8i-a33-olinuxino.dtb
 Sinlinx SinA33	                        sun8i-a33-sinlinx-sina33.dtb              1GB DDR3 、4GB EMMC
 

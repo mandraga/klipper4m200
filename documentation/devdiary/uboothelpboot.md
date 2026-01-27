@@ -660,7 +660,7 @@ mmc_init: -95, time 22
 NOPE
 
 
-## Booting by chain loading and then loading not from the emmc but from the fat16 partition un usb
+## Booting by chain loading from the EMMC FAT16 part, and then loading not from the emmc but from the fat16 partition on usb
 ```
 fatload mmc 2:2 0x4A000000 u-boot-dtb.bin
 go 0x4A000000
@@ -769,6 +769,7 @@ Hangs and reboots
 
 ## DO NOT TRY AT HOME
 
+!!!!!!!!!!!!!!! BRICKs the board !!!!!!!!!!!!!!!!!!!!
 -------------------------- THIS BREAKS THE BOARD, NO FEL MODE AFTER THAT!!!!  ----------------------------
 Wipe it:
 echo 0 > /sys/block/mmcblk2boot0/force_ro
@@ -781,11 +782,9 @@ dd if=u-boot-sunxi-with-spl.bin of=/dev/mmcblk2boot0 bs=1024 seek=8 status=noxfe
 dd if=u-boot-sunxi-with-spl.bin of=/dev/mmcblk2boot1 bs=1024 seek=8 status=noxfer
 Because it is loaded but hangs and does not help with anything but bricks the board
 since the FEL mode is not available anymore.
+!!!!!!!!!!!!!!! BRICKs the board !!!!!!!!!!!!!!!!!!!!
 
-Will try to unbrick using an SDIO adapter to sdcard on port SDC0. The BROM trys this first.
-https://linux-sunxi.org/BROM
-Then booting linux and restoring the boot0 and boot1 partitions recovererd from another device and
-therefore restoring FEL mode.
+After that your board is a brick, you need to replace the EMMC with a new programmed one.
 ------------------------------------------------------------------------------------------------
 
 ```

@@ -34,7 +34,7 @@ Once in Linux, you can:
 
 Compile u-boot with build_m200.sh from the u-boot folder in this repo, run it the u-boot fork repo.
 Create an Armbian full image using the lime-A33 board using the armbian_build repo.
-DD it on /dev/sda2 (or edit uboot command to use sda1 instead).
+DD it on /dev/sdx2 where sdx is your usb stick (or edit uboot command to use sdx1 instead).
 Do not forget to include linux headers and to enable the touchscreen (see linux.md).
 
 ## At first boot from FEL mode

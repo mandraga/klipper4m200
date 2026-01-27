@@ -1,0 +1,554 @@
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Driver based on sunxi sl698ph_720p and mainline panel-himax-hx8394
+ * to suport the "MTF0397SWI-06" tft lcd panl using the ic OTM8019A.
+ * Copyright (C) 2025 Patrick Areny
+ * 
+ * Based on the driver for panels based on Himax HX8394 controller, such as:
+ * - HannStar HSD060BHW4 5.99" MIPI-DSI panel
+ * Copyright (C) 2021 Kamil Trzciński
+ *
+ * Based on drivers/gpu/drm/panel/panel-sitronix-st7703.c
+ * Copyright (C) Purism SPC 2019
+ */
+
+#include <linux/delay.h>
+#include <linux/gpio/consumer.h>
+#include <linux/media-bus-format.h>
+#include <linux/mod_devicetable.h>
+#include <linux/module.h>
+#include <linux/of.h>
+#include <linux/of_device.h>
+#include <linux/regulator/consumer.h>
+
+#include <video/mipi_display.h>
+
+#include <drm/drm_mipi_dsi.h>
+#include <drm/drm_modes.h>
+#include <drm/drm_panel.h>
+
+struct mtf0397swi {
+	struct device *dev;
+	struct drm_panel panel;
+	struct gpio_desc *reset_gpio;
+	struct regulator *vcc;
+	struct regulator *iovcc;
+	bool prepared;
+
+	const struct mtf0397swi_panel_desc *desc;
+};
+
+struct mtf0397swi_panel_desc {
+	const struct drm_display_mode *mode;
+	unsigned int lanes;
+	unsigned long mode_flags;
+	enum mipi_dsi_pixel_format format;
+	int (*init_sequence)(struct mtf0397swi *ctx);
+};
+
+static inline struct mtf0397swi *panel_to_mtf0397swi(struct drm_panel *ppanel)
+{
+	return container_of(ppanel, struct mtf0397swi, panel);
+}
+
+//#define SPAZZIMOTO_TIMINGS
+#ifdef SPAZZIMOTO_TIMINGS
+static int mtf0397swi_init_sequence(struct mtf0397swi *ctx)
+{
+	dev_info(ctx->dev, "mtf0397swi init_sequence start\n");
+	struct mipi_dsi_device *dsi = to_mipi_dsi_device(ctx->dev);
+	mipi_dsi_dcs_write_seq(dsi, 0x00, 0x00);
+	mipi_dsi_dcs_write_seq(dsi, 0xFF, 0x80, 0x19, 0x01);
+	//dev_info(ctx->dev, "sent 0xFF, 0x80, 0x19, 0x01\n");
+	mipi_dsi_dcs_write_seq(dsi, 0x00, 0x80);
+	//dev_info(ctx->dev, "sent 0x00, 0x80\n");
+	mipi_dsi_dcs_write_seq(dsi, 0xFF, 0x80, 0x19);
+	//dev_info(ctx->dev, "sent  0xFF, 0x80, 0x19\n");
+	mipi_dsi_dcs_write_seq(dsi, 0x00, 0x8A);
+	mipi_dsi_dcs_write_seq(dsi, 0xC4, 0x40);
+	mipi_dsi_dcs_write_seq(dsi, 0x00, 0xA6);
+	mipi_dsi_dcs_write_seq(dsi, 0xB3, 0x20, 0x01);
+	mipi_dsi_dcs_write_seq(dsi, 0x00, 0x90);
+	mipi_dsi_dcs_write_seq(dsi, 0xC0, 0x00, 0x15, 0x00, 0x00, 0x00, 0x03);
+	mipi_dsi_dcs_write_seq(dsi, 0x00, 0xB4);
+	mipi_dsi_dcs_write_seq(dsi, 0xC0, 0x20);
+	mipi_dsi_dcs_write_seq(dsi, 0x00, 0x81);
+	mipi_dsi_dcs_write_seq(dsi, 0xC1, 0x33);
+	mipi_dsi_dcs_write_seq(dsi, 0x00, 0x81);
+	mipi_dsi_dcs_write_seq(dsi, 0xC4, 0x81);
+	mipi_dsi_dcs_write_seq(dsi, 0x00, 0x87);
+	mipi_dsi_dcs_write_seq(dsi, 0xC4, 0x00);
+	mipi_dsi_dcs_write_seq(dsi, 0x00, 0x89);
+	mipi_dsi_dcs_write_seq(dsi, 0xC4, 0x00);
+	mipi_dsi_dcs_write_seq(dsi, 0x00, 0x82);
+	mipi_dsi_dcs_write_seq(dsi, 0xC5, 0xB0);
+	mipi_dsi_dcs_write_seq(dsi, 0x00, 0x90);
+	mipi_dsi_dcs_write_seq(dsi, 0xC5, 0x4E, 0x79, 0x06, 0x91, 0x33, 0x34, 0x23);
+	mipi_dsi_dcs_write_seq(dsi, 0x00, 0xB1);
+	mipi_dsi_dcs_write_seq(dsi, 0xC5, 0xA8);
+	mipi_dsi_dcs_write_seq(dsi, 0x00, 0x00);
+	mipi_dsi_dcs_write_seq(dsi, 0xD8, 0x68, 0x68);
+	mipi_dsi_dcs_write_seq(dsi, 0x00, 0x00);
+	mipi_dsi_dcs_write_seq(dsi, 0xD9, 0x40); // VCOMDC
+	mipi_dsi_dcs_write_seq(dsi, 0x00, 0x80);
+	mipi_dsi_dcs_write_seq(dsi, 0xCE, 0x86, 0x01, 0x00, 0x85, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
+	mipi_dsi_dcs_write_seq(dsi, 0x00, 0xA0);
+	mipi_dsi_dcs_write_seq(dsi, 0xCE, 0x18, 0x05, 0x83, 0x39, 0x00, 0x00, 0x00, 0x18, 0x04, 0x83, 0x3A, 0x00, 0x00, 0x00);
+	mipi_dsi_dcs_write_seq(dsi, 0x00, 0xB0);
+	mipi_dsi_dcs_write_seq(dsi, 0xCE, 0x18, 0x03, 0x83, 0x3B, 0x86, 0x00, 0x00, 0x18, 0x02, 0x83, 0x3C, 0x88, 0x00, 0x00);
+	mipi_dsi_dcs_write_seq(dsi, 0x00, 0xC0);
+	mipi_dsi_dcs_write_seq(dsi, 0xCF, 0x01, 0x01, 0x20, 0x20, 0x00, 0x00, 0x01, 0x02, 0x00, 0x00);
+	mipi_dsi_dcs_write_seq(dsi, 0x00, 0xD0);
+	mipi_dsi_dcs_write_seq(dsi, 0xCF, 0x00);
+	mipi_dsi_dcs_write_seq(dsi, 0x00, 0xC0);
+	mipi_dsi_dcs_write_seq(dsi, 0xCB, 0x00, 0x01, 0x01, 0x01, 0x01, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
+	mipi_dsi_dcs_write_seq(dsi, 0x00, 0xD0);
+	mipi_dsi_dcs_write_seq(dsi, 0xCB, 0x00);
+	mipi_dsi_dcs_write_seq(dsi, 0x00, 0xD5);
+	mipi_dsi_dcs_write_seq(dsi, 0xCB, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
+	mipi_dsi_dcs_write_seq(dsi, 0x00, 0xE0);
+	mipi_dsi_dcs_write_seq(dsi, 0xCB, 0x01, 0x01, 0x01, 0x01, 0x01, 0x00);
+	mipi_dsi_dcs_write_seq(dsi, 0x00, 0x80);
+	mipi_dsi_dcs_write_seq(dsi, 0xCC, 0x00, 0x26, 0x09, 0x0B, 0x01, 0x25, 0x00, 0x00, 0x00, 0x00);
+	mipi_dsi_dcs_write_seq(dsi, 0x00, 0x90);
+	mipi_dsi_dcs_write_seq(dsi, 0xCC, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
+	mipi_dsi_dcs_write_seq(dsi, 0x00, 0x9A);
+	mipi_dsi_dcs_write_seq(dsi, 0xCC, 0x00, 0x00, 0x00, 0x00, 0x00);
+	mipi_dsi_dcs_write_seq(dsi, 0x00, 0xA0);
+	mipi_dsi_dcs_write_seq(dsi, 0xCC, 0x00, 0x00, 0x00, 0x00, 0x00, 0x25, 0x02, 0x0C, 0x0A, 0x26, 0x00);
+	mipi_dsi_dcs_write_seq(dsi, 0x00, 0xB0);
+	mipi_dsi_dcs_write_seq(dsi, 0xCC, 0x00, 0x25, 0x0C, 0x0A, 0x02, 0x26, 0x00, 0x00, 0x00, 0x00);
+	mipi_dsi_dcs_write_seq(dsi, 0x00, 0xC0);
+	mipi_dsi_dcs_write_seq(dsi, 0xCC, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
+	mipi_dsi_dcs_write_seq(dsi, 0x00, 0xCA);
+	mipi_dsi_dcs_write_seq(dsi, 0xCC, 0x00, 0x00, 0x00, 0x00, 0x00);
+	mipi_dsi_dcs_write_seq(dsi, 0x00, 0xD0);
+	mipi_dsi_dcs_write_seq(dsi, 0xCC, 0x00, 0x00, 0x00, 0x00, 0x00, 0x26, 0x01, 0x09, 0x0B, 0x25, 0x00);
+	mipi_dsi_dcs_write_seq(dsi, 0x00, 0x00);
+	mipi_dsi_dcs_write_seq(dsi, 0xE1, 0x00, 0x04, 0x08, 0x10, 0x24, 0x40, 0x55, 0x94, 0x85, 0x9B, 0x6C, 0x5c, 0x76, 0x62, 0x68, 0x61, 0x5B, 0x4D, 0x47, 0x00);
+	mipi_dsi_dcs_write_seq(dsi, 0x00, 0x00);
+	mipi_dsi_dcs_write_seq(dsi, 0xE2, 0x00, 0x04, 0x08, 0x10, 0x24, 0x40, 0x55, 0x93, 0x85, 0x9B, 0x6C, 0x5c, 0x75, 0x62, 0x68, 0x61, 0x5A, 0x4D, 0x46, 0x00);
+	mipi_dsi_dcs_write_seq(dsi, 0x00, 0x98);
+	mipi_dsi_dcs_write_seq(dsi, 0xC0, 0x00);
+	mipi_dsi_dcs_write_seq(dsi, 0x00, 0xA9);
+	mipi_dsi_dcs_write_seq(dsi, 0xC0, 0x06);
+	mipi_dsi_dcs_write_seq(dsi, 0x00, 0xB0);
+	mipi_dsi_dcs_write_seq(dsi, 0xC1, 0x20, 0x00, 0x00);
+	mipi_dsi_dcs_write_seq(dsi, 0x00, 0xE1);
+	mipi_dsi_dcs_write_seq(dsi, 0xC0, 0x40, 0x18);
+	mipi_dsi_dcs_write_seq(dsi, 0x00, 0x80);
+	mipi_dsi_dcs_write_seq(dsi, 0xC4, 0x30);
+	mipi_dsi_dcs_write_seq(dsi, 0x00, 0x80);
+	mipi_dsi_dcs_write_seq(dsi, 0xC1, 0x03, 0x33);
+	mipi_dsi_dcs_write_seq(dsi, 0x00, 0xA0);
+	mipi_dsi_dcs_write_seq(dsi, 0xC1, 0xE8);
+	mipi_dsi_dcs_write_seq(dsi, 0x00, 0x90);
+	mipi_dsi_dcs_write_seq(dsi, 0xB6, 0xB4);
+	mipi_dsi_dcs_write_seq(dsi, 0x00, 0x00);
+	mipi_dsi_dcs_write_seq(dsi, 0xFF, 0xFF, 0xFF, 0xFF);
+	mipi_dsi_dcs_write_seq(dsi, 0x00, 0x00);
+	mipi_dsi_dcs_write_seq(dsi, 0x3A, 0x77);
+	return 0;
+}
+#else
+static int mtf0397swi_init_sequence(struct mtf0397swi *ctx)
+{
+	dev_info(ctx->dev, "mtf0397swi init_sequence start\n");
+	struct mipi_dsi_device *dsi = to_mipi_dsi_device(ctx->dev);
+	mipi_dsi_dcs_write_seq(dsi, 0x00, 0x00);
+	mipi_dsi_dcs_write_seq(dsi, 0xFF, 0x80, 0x19, 0x01);
+	//dev_info(ctx->dev, "sent 0xFF, 0x80, 0x19, 0x01\n");
+	mipi_dsi_dcs_write_seq(dsi, 0x00, 0x80);
+	//dev_info(ctx->dev, "sent 0x00, 0x80\n");
+	mipi_dsi_dcs_write_seq(dsi, 0xFF, 0x80, 0x19);
+	//dev_info(ctx->dev, "sent  0xFF, 0x80, 0x19\n");
+	mipi_dsi_dcs_write_seq(dsi, 0x00, 0x8A);
+	mipi_dsi_dcs_write_seq(dsi, 0xC4, 0x40);
+	mipi_dsi_dcs_write_seq(dsi, 0x00, 0xA6);
+	mipi_dsi_dcs_write_seq(dsi, 0xB3, 0x20, 0x01);
+	mipi_dsi_dcs_write_seq(dsi, 0x00, 0x90);
+	mipi_dsi_dcs_write_seq(dsi, 0xC0, 0x00, 0x15, 0x00, 0x00, 0x00, 0x03);
+	mipi_dsi_dcs_write_seq(dsi, 0x00, 0xB4);
+	mipi_dsi_dcs_write_seq(dsi, 0xC0, 0x00, 0x48);
+	mipi_dsi_dcs_write_seq(dsi, 0x00, 0x81);
+	mipi_dsi_dcs_write_seq(dsi, 0xC1, 0x33);
+	mipi_dsi_dcs_write_seq(dsi, 0x00, 0x81);
+	mipi_dsi_dcs_write_seq(dsi, 0xC4, 0x81);
+	mipi_dsi_dcs_write_seq(dsi, 0x00, 0x87);
+	mipi_dsi_dcs_write_seq(dsi, 0xC4, 0x00);
+	mipi_dsi_dcs_write_seq(dsi, 0x00, 0x89);
+	mipi_dsi_dcs_write_seq(dsi, 0xC4, 0x00);
+	mipi_dsi_dcs_write_seq(dsi, 0x00, 0x82);
+	mipi_dsi_dcs_write_seq(dsi, 0xC5, 0xB0);
+	mipi_dsi_dcs_write_seq(dsi, 0x00, 0x90);
+	mipi_dsi_dcs_write_seq(dsi, 0xC5, 0x4E, 0x79, 0x06, 0x91, 0x33, 0x34, 0x23);
+	mipi_dsi_dcs_write_seq(dsi, 0x00, 0xB1);
+	mipi_dsi_dcs_write_seq(dsi, 0xC5, 0xA8);
+	mipi_dsi_dcs_write_seq(dsi, 0x00, 0x00);
+	mipi_dsi_dcs_write_seq(dsi, 0xD8, 0x68, 0x68);
+	mipi_dsi_dcs_write_seq(dsi, 0x00, 0x00);
+	mipi_dsi_dcs_write_seq(dsi, 0xD9, 0x44);
+	mipi_dsi_dcs_write_seq(dsi, 0x00, 0x80);
+	mipi_dsi_dcs_write_seq(dsi, 0xCE, 0x86, 0x01, 0x00, 0x85, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
+	mipi_dsi_dcs_write_seq(dsi, 0x00, 0xA0);
+	mipi_dsi_dcs_write_seq(dsi, 0xCE, 0x18, 0x05, 0x83, 0x39, 0x00, 0x00, 0x00, 0x18, 0x04, 0x83, 0x3A, 0x00, 0x00, 0x00);
+	mipi_dsi_dcs_write_seq(dsi, 0x00, 0xB0);
+	mipi_dsi_dcs_write_seq(dsi, 0xCE, 0x18, 0x03, 0x83, 0x3B, 0x86, 0x00, 0x00, 0x18, 0x02, 0x83, 0x3C, 0x88, 0x00, 0x00);
+	mipi_dsi_dcs_write_seq(dsi, 0x00, 0xC0);
+	mipi_dsi_dcs_write_seq(dsi, 0xCF, 0x01, 0x01, 0x20, 0x20, 0x00, 0x00, 0x01, 0x02, 0x00, 0x00);
+	mipi_dsi_dcs_write_seq(dsi, 0x00, 0xD0);
+	mipi_dsi_dcs_write_seq(dsi, 0xCF, 0x00);
+	mipi_dsi_dcs_write_seq(dsi, 0x00, 0xC0);
+	mipi_dsi_dcs_write_seq(dsi, 0xCB, 0x00, 0x01, 0x01, 0x01, 0x01, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
+	mipi_dsi_dcs_write_seq(dsi, 0x00, 0xD0);
+	mipi_dsi_dcs_write_seq(dsi, 0xCB, 0x00);
+	mipi_dsi_dcs_write_seq(dsi, 0x00, 0xD5);
+	mipi_dsi_dcs_write_seq(dsi, 0xCB, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
+	mipi_dsi_dcs_write_seq(dsi, 0x00, 0xE0);
+	mipi_dsi_dcs_write_seq(dsi, 0xCB, 0x01, 0x01, 0x01, 0x01, 0x01, 0x00);
+	mipi_dsi_dcs_write_seq(dsi, 0x00, 0x80);
+	mipi_dsi_dcs_write_seq(dsi, 0xCC, 0x00, 0x26, 0x09, 0x0B, 0x01, 0x25, 0x00, 0x00, 0x00, 0x00);
+	mipi_dsi_dcs_write_seq(dsi, 0x00, 0x90);
+	mipi_dsi_dcs_write_seq(dsi, 0xCC, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
+	mipi_dsi_dcs_write_seq(dsi, 0x00, 0x9A);
+	mipi_dsi_dcs_write_seq(dsi, 0xCC, 0x00, 0x00, 0x00, 0x00, 0x00);
+	mipi_dsi_dcs_write_seq(dsi, 0x00, 0xA0);
+	mipi_dsi_dcs_write_seq(dsi, 0xCC, 0x00, 0x00, 0x00, 0x00, 0x00, 0x25, 0x02, 0x0C, 0x0A, 0x26, 0x00);
+	mipi_dsi_dcs_write_seq(dsi, 0x00, 0xB0);
+	mipi_dsi_dcs_write_seq(dsi, 0xCC, 0x00, 0x25, 0x0C, 0x0A, 0x02, 0x26, 0x00, 0x00, 0x00, 0x00);
+	mipi_dsi_dcs_write_seq(dsi, 0x00, 0xC0);
+	mipi_dsi_dcs_write_seq(dsi, 0xCC, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
+	mipi_dsi_dcs_write_seq(dsi, 0x00, 0xCA);
+	mipi_dsi_dcs_write_seq(dsi, 0xCC, 0x00, 0x00, 0x00, 0x00, 0x00);
+	mipi_dsi_dcs_write_seq(dsi, 0x00, 0xD0);
+	mipi_dsi_dcs_write_seq(dsi, 0xCC, 0x00, 0x00, 0x00, 0x00, 0x00, 0x26, 0x01, 0x09, 0x0B, 0x25, 0x00);
+	mipi_dsi_dcs_write_seq(dsi, 0x00, 0x00);
+	mipi_dsi_dcs_write_seq(dsi, 0xE1, 0x00, 0x16, 0x24, 0x30, 0x41, 0x4E, 0x4F, 0x79, 0x6A, 0x83, 0x7F, 0x6A, 0x7D, 0x5D, 0x5B, 0x51, 0x44, 0x3C, 0x38, 0x00);
+	mipi_dsi_dcs_write_seq(dsi, 0x00, 0x00);
+	mipi_dsi_dcs_write_seq(dsi, 0xE2, 0x00, 0x15, 0x25, 0x30, 0x41, 0x4D, 0x50, 0x79, 0x6A, 0x84, 0x7F, 0x6B, 0x7C, 0x5C, 0x5B, 0x51, 0x44, 0x3C, 0x38, 0x00);
+	mipi_dsi_dcs_write_seq(dsi, 0x00, 0x80);
+	mipi_dsi_dcs_write_seq(dsi, 0xC4, 0x30);
+	mipi_dsi_dcs_write_seq(dsi, 0x00, 0x98);
+	mipi_dsi_dcs_write_seq(dsi, 0xC0, 0x00);
+	mipi_dsi_dcs_write_seq(dsi, 0x00, 0xA9);
+	mipi_dsi_dcs_write_seq(dsi, 0xC0, 0x0A);
+	mipi_dsi_dcs_write_seq(dsi, 0x00, 0xB0);
+	mipi_dsi_dcs_write_seq(dsi, 0xC1, 0x20, 0x00, 0x00);
+	mipi_dsi_dcs_write_seq(dsi, 0x00, 0xE1);
+	mipi_dsi_dcs_write_seq(dsi, 0xC0, 0x40, 0x30);
+	mipi_dsi_dcs_write_seq(dsi, 0x00, 0x80);
+	mipi_dsi_dcs_write_seq(dsi, 0xC1, 0x03, 0x33);
+	mipi_dsi_dcs_write_seq(dsi, 0x00, 0xA0);
+	mipi_dsi_dcs_write_seq(dsi, 0xC1, 0xE8);
+	mipi_dsi_dcs_write_seq(dsi, 0x00, 0x90);
+	mipi_dsi_dcs_write_seq(dsi, 0xB6, 0xB4);
+	// The following lines seem to be delays or NOPs, not DSI commands
+	msleep(10);
+	mipi_dsi_dcs_write_seq(dsi, 0x00, 0x00);
+	mipi_dsi_dcs_write_seq(dsi, 0xFB, 0x01);
+	mipi_dsi_dcs_write_seq(dsi, 0x00, 0x00);
+	mipi_dsi_dcs_write_seq(dsi, 0xFF, 0xFF, 0xFF, 0xFF);
+	msleep(20);
+	mipi_dsi_dcs_write_seq(dsi, 0x00, 0x00);
+	mipi_dsi_dcs_write_seq(dsi, 0x3A, 0x77);
+	mipi_dsi_dcs_write_seq(dsi, 0x00, 0x00);
+	mipi_dsi_dcs_write_seq(dsi, 0x11, 0x00);
+	msleep(120);
+	mipi_dsi_dcs_write_seq(dsi, 0x00, 0x00);
+	mipi_dsi_dcs_write_seq(dsi, 0x29, 0x00);
+	msleep(100);
+	return 0;
+}
+#endif
+
+static const struct drm_display_mode mtf0397swi_mode = {
+#ifdef SPAZZIMOTO_TIMINGS
+	.hdisplay    = 480,
+	.hsync_start = 480 + 30,
+	.hsync_end   = 480 + 30 + 10,
+	.htotal	     = 480 + 30 + 10 + 30,
+	.vdisplay    = 800,
+	.vsync_start = 800 + 20,
+	.vsync_end   = 800 + 20 + 5,
+	.vtotal	     = 800 + 20 + 5 + 10,
+	.clock	     = 27600,
+	.flags	     = DRM_MODE_FLAG_NHSYNC | DRM_MODE_FLAG_NVSYNC,
+	//.type        = DRM_MODE_TYPE_DRIVER | DRM_MODE_TYPE_PREFERRED,
+	.width_mm    = 51,
+	.height_mm   = 86,
+#else
+	.hdisplay    = 480,
+	.hsync_start = 480 + 44,
+	.hsync_end   = 480 + 44 + 6,
+	.htotal	     = 480 + 44 + 6 + 45,
+	.vdisplay    = 800,
+	.vsync_start = 800 + 16,
+	.vsync_end   = 800 + 16 + 1,
+	.vtotal	     = 800 + 16 + 1 + 79,
+	.clock	     = 31000,
+	.flags	     = DRM_MODE_FLAG_NHSYNC | DRM_MODE_FLAG_NVSYNC,
+	.width_mm    = 51,
+	.height_mm   = 86,
+#endif
+};
+
+// MIPI_DSI_FMT_RGB888 for 16.7M colors
+static const struct mtf0397swi_panel_desc mtf0397swi_desc = {
+	.mode = &mtf0397swi_mode,
+	.lanes = 2,
+	.mode_flags = MIPI_DSI_MODE_VIDEO,// | MIPI_DSI_MODE_VIDEO_BURST,
+	.format = MIPI_DSI_FMT_RGB888,
+	.init_sequence = mtf0397swi_init_sequence,
+};
+
+static int mtf0397swi_enable(struct drm_panel *panel)
+{
+	struct mtf0397swi *ctx = panel_to_mtf0397swi(panel);
+	struct mipi_dsi_device *dsi = to_mipi_dsi_device(ctx->dev);
+	int ret;
+
+	ret = ctx->desc->init_sequence(ctx);
+	if (ret) {
+		dev_err(ctx->dev, "Panel init sequence failed: %d\n", ret);
+		return ret;
+	}
+
+	ret = mipi_dsi_dcs_exit_sleep_mode(dsi);
+	if (ret) {
+		dev_err(ctx->dev, "Failed to exit sleep mode: %d\n", ret);
+		return ret;
+	}
+
+	/* Panel is operational 120 msec after reset */
+	msleep(120);
+
+	ret = mipi_dsi_dcs_set_display_on(dsi);
+	if (ret) {
+		dev_err(ctx->dev, "Failed to turn on the display: %d\n", ret);
+		goto sleep_in;
+	}
+	dev_info(ctx->dev, "Panel initialized and display enabled\n");
+	return 0;
+
+sleep_in:
+	/* This will probably fail, but let's try orderly power off anyway. */
+	if (!mipi_dsi_dcs_enter_sleep_mode(dsi))
+		msleep(50);
+
+	return ret;
+}
+
+static int mtf0397swi_disable(struct drm_panel *panel)
+{
+	struct mtf0397swi *ctx = panel_to_mtf0397swi(panel);
+	struct mipi_dsi_device *dsi = to_mipi_dsi_device(ctx->dev);
+	int ret;
+
+	ret = mipi_dsi_dcs_enter_sleep_mode(dsi);
+	if (ret) {
+		dev_err(ctx->dev, "Failed to enter sleep mode: %d\n", ret);
+		return ret;
+	}
+
+	msleep(50); /* about 3 frames */
+
+	return 0;
+}
+
+static int mtf0397swi_unprepare(struct drm_panel *panel)
+{
+	struct mtf0397swi *ctx = panel_to_mtf0397swi(panel);
+
+	if (!ctx->prepared)
+		return 0;
+
+	gpiod_set_value_cansleep(ctx->reset_gpio, 1);
+
+	regulator_disable(ctx->iovcc);
+	regulator_disable(ctx->vcc);
+
+	ctx->prepared = false;
+
+	return 0;
+}
+
+static int mtf0397swi_prepare(struct drm_panel *panel)
+{
+	struct mtf0397swi *ctx = panel_to_mtf0397swi(panel);
+	int ret;
+
+	if (ctx->prepared)
+		return 0;
+
+	ret = regulator_enable(ctx->vcc);
+	if (ret) {
+		dev_err(ctx->dev, "Failed to enable vcc supply: %d\n", ret);
+		return ret;
+	}
+
+	ret = regulator_enable(ctx->iovcc);
+	if (ret) {
+		dev_err(ctx->dev, "Failed to enable iovcc supply: %d\n", ret);
+		goto disable_vcc;
+	}
+	msleep(100);
+	gpiod_set_value_cansleep(ctx->reset_gpio, 1);
+	msleep(50);
+	gpiod_set_value_cansleep(ctx->reset_gpio, 0);
+	msleep(200);
+
+	ctx->prepared = true;
+	dev_info(ctx->dev, "Panel prepare succeeded\n");
+	return 0;
+
+disable_vcc:
+	gpiod_set_value_cansleep(ctx->reset_gpio, 1);
+	regulator_disable(ctx->vcc);
+	return ret;
+}
+
+static int mtf0397swi_get_modes(struct drm_panel *panel,
+			    struct drm_connector *connector)
+{
+	struct mtf0397swi *ctx = panel_to_mtf0397swi(panel);
+	struct drm_display_mode *mode;
+
+	mode = drm_mode_duplicate(connector->dev, ctx->desc->mode);
+	if (!mode) {
+		dev_err(ctx->dev, "Failed to add mode %ux%u@%u\n",
+			ctx->desc->mode->hdisplay, ctx->desc->mode->vdisplay,
+			drm_mode_vrefresh(ctx->desc->mode));
+		return -ENOMEM;
+	}
+
+	drm_mode_set_name(mode);
+
+	mode->type = DRM_MODE_TYPE_DRIVER | DRM_MODE_TYPE_PREFERRED;
+	connector->display_info.width_mm = mode->width_mm;
+	connector->display_info.height_mm = mode->height_mm;
+	drm_mode_probed_add(connector, mode);
+
+	return 1;
+}
+
+static const struct drm_panel_funcs mtf0397swi_drm_funcs = {
+	.disable   = mtf0397swi_disable,
+	.unprepare = mtf0397swi_unprepare,
+	.prepare   = mtf0397swi_prepare,
+	.enable	   = mtf0397swi_enable,
+	.get_modes = mtf0397swi_get_modes,
+};
+
+static int mtf0397swi_probe(struct mipi_dsi_device *dsi)
+{
+	struct device *dev = &dsi->dev;
+	struct mtf0397swi *ctx;
+	int ret;
+
+	ctx = devm_kzalloc(dev, sizeof(*ctx), GFP_KERNEL);
+	if (!ctx)
+		return -ENOMEM;
+
+	ctx->reset_gpio = devm_gpiod_get(dev, "reset", GPIOD_OUT_HIGH);
+	if (IS_ERR(ctx->reset_gpio))
+		return dev_err_probe(dev, PTR_ERR(ctx->reset_gpio),
+				     "Failed to get reset gpio\n");
+
+	mipi_dsi_set_drvdata(dsi, ctx);
+
+	ctx->dev = dev;
+	ctx->desc = of_device_get_match_data(dev);
+
+	dsi->mode_flags = ctx->desc->mode_flags;
+	dsi->format = ctx->desc->format;
+	dsi->lanes = ctx->desc->lanes;
+	dev_info(dev, "DSI format: 0x%x, lanes: %u, mode_flags: 0x%lx\n",
+		 dsi->format, dsi->lanes, dsi->mode_flags);
+
+	ctx->vcc = devm_regulator_get(dev, "vcc");
+	if (IS_ERR(ctx->vcc))
+		return dev_err_probe(dev, PTR_ERR(ctx->vcc),
+				     "Failed to request vcc regulator\n");
+
+	ctx->iovcc = devm_regulator_get(dev, "iovcc");
+	if (IS_ERR(ctx->iovcc))
+		return dev_err_probe(dev, PTR_ERR(ctx->iovcc),
+				     "Failed to request iovcc regulator\n");
+
+	drm_panel_init(&ctx->panel, dev, &mtf0397swi_drm_funcs,
+		       DRM_MODE_CONNECTOR_DSI);
+
+	ret = drm_panel_of_backlight(&ctx->panel);
+	if (ret)
+		return ret;
+
+	drm_panel_add(&ctx->panel);
+
+	ret = mipi_dsi_attach(dsi);
+	if (ret < 0) {
+		dev_err_probe(dev, ret, "mipi_dsi_attach failed\n");
+		drm_panel_remove(&ctx->panel);
+		return ret;
+	}
+
+	dev_dbg(dev, "%ux%u@%u %ubpp dsi %udl - ready\n",
+		ctx->desc->mode->hdisplay, ctx->desc->mode->vdisplay,
+		drm_mode_vrefresh(ctx->desc->mode),
+		mipi_dsi_pixel_format_to_bpp(dsi->format), dsi->lanes);
+	
+	dev_info(dev, "%ux%u@%u %ubpp dsi %u lanes - ready\n",
+		ctx->desc->mode->hdisplay, ctx->desc->mode->vdisplay,
+		drm_mode_vrefresh(ctx->desc->mode),
+		mipi_dsi_pixel_format_to_bpp(dsi->format), dsi->lanes);
+
+	return 0;
+}
+
+static void mtf0397swi_shutdown(struct mipi_dsi_device *dsi)
+{
+	struct mtf0397swi *ctx = mipi_dsi_get_drvdata(dsi);
+	int ret;
+
+	ret = drm_panel_disable(&ctx->panel);
+	if (ret < 0)
+		dev_err(&dsi->dev, "Failed to disable panel: %d\n", ret);
+
+	ret = drm_panel_unprepare(&ctx->panel);
+	if (ret < 0)
+		dev_err(&dsi->dev, "Failed to unprepare panel: %d\n", ret);
+}
+
+static void mtf0397swi_remove(struct mipi_dsi_device *dsi)
+{
+	struct mtf0397swi *ctx = mipi_dsi_get_drvdata(dsi);
+	int ret;
+
+	mtf0397swi_shutdown(dsi);
+
+	ret = mipi_dsi_detach(dsi);
+	if (ret < 0)
+		dev_err(&dsi->dev, "Failed to detach from DSI host: %d\n", ret);
+
+	drm_panel_remove(&ctx->panel);
+}
+
+static const struct of_device_id mtf0397swi_of_match[] = {
+	{ .compatible = "microtech,mtf0397swi-06", .data = &mtf0397swi_desc },
+	{ /* sentinel */ }
+};
+MODULE_DEVICE_TABLE(of, mtf0397swi_of_match);
+
+static struct mipi_dsi_driver mtf0397swi_driver = {
+	.probe	= mtf0397swi_probe,
+	.remove = mtf0397swi_remove,
+	.shutdown = mtf0397swi_shutdown,
+	.driver = {
+		.name = "panel-mtf0397swi",
+		.of_match_table = mtf0397swi_of_match,
+	},
+};
+module_mipi_dsi_driver(mtf0397swi_driver);
+
+MODULE_AUTHOR("Patrick Areny <pataraign@gmail.com>");
+MODULE_DESCRIPTION("DRM driver for Microtech Technology MTF0397SWI-06 MIPI DSI panels");
+MODULE_LICENSE("GPL");

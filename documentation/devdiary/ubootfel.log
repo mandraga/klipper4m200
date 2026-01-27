@@ -1,0 +1,163 @@
+$microcom -s 115200 -p /dev/ttyUSB0
+
+U-Boot SPL 2025.10-rc5 (Oct 19 2025 - 17:03:53 +0200)
+DRAM: 1024 MiB
+Trying to boot from FEL
+ns16550_serial serial@1c28000: pinctrl_select_state_full: uclass_get_device_by_phandle_id: err=-19
+
+
+U-Boot 2025.10-rc5 (Oct 19 2025 - 17:03:53 +0200) Allwinner Technology
+
+CPU:   Allwinner A33 (SUN8I 1667)
+Model: Zortrax A33-M200
+DRAM:  1 GiB
+Core:  59 devices, 21 uclasses, devicetree: separate
+WDT:   Not starting watchdog@1c20ca0
+MMC:   TTT
+
+
+
+
+## MMcinfo from a better dts
+
+=> mmc dev 1
+switch to partitions #0, OK
+mmc1(part 0) is current device
+=> mmcinfo
+Device: mmc@1c11000
+Manufacturer ID: 11
+OEM: 0
+Name: 008G70 
+Bus Speed: 52000000
+Mode: MMC High Speed (52MHz)
+Rd Block Len: 512
+MMC version 5.0
+High Capacity: Yes
+Capacity: 7.3 GiB
+Bus Width: 8-bit
+Erase Group Size: 512 KiB
+HC WP Group Size: 4 MiB
+User Capacity: 7.3 GiB WRREL
+Boot Capacity: 4 MiB ENH
+RPMB Capacity: 4 MiB ENH
+Boot area 0 is not write protected
+Boot area 1 is not write protected
+=> 
+
+=> mmc part
+
+Partition Map for mmc device 1  --   Partition Type: DOS
+
+Part	Start Sector	Num Sectors	UUID		Type
+  1	2990080   	12378112  	00000000-01	0b Boot
+  2	73728     	65536     	00000000-02	06
+  3	1         	2850816   	00000000-03	05 Extd
+  5	139264    	32768     	00000000-05	83
+  6	172032    	32768     	00000000-06	83
+  7	204800    	1572864   	00000000-07	83
+  8	1777664   	32768     	00000000-08	83
+  9	1810432   	65536     	00000000-09	83
+ 10	1875968   	1048576   	00000000-0a	83
+ 11	2924544   	32768     	00000000-0b	83
+ 12	2957312   	32768     	00000000-0c	83
+
+### Réordonné
+
+Part	Start Sector	Num Sectors	UUID		Type
+  2	73728     	65536     	00000000-02	06
+  5	139264    	32768     	00000000-05	83
+  6	172032    	32768     	00000000-06	83
+  7	204800    	1572864   	00000000-07	83
+  8	1777664   	32768     	00000000-08	83
+  9	1810432   	65536     	00000000-09	83
+ 10	1875968   	1048576   	00000000-0a	83
+
+Le fastboot
+  3	1             2850816   	00000000-03	05 Extd  1.4GB
+ 11	2 924 544   	32768     	00000000-0b	83       16MB
+ 12	2 957 312   	32768     	00000000-0c	83       16MB
+                      2916352                           1493172224=0x59000000
++1MB= 0x5A000000
+
+ 1	2990080   	12378112  	00000000-01	0b Boot
+ 
+Partition 3 2850816secteurs de 512 = 0x57000000
+
+
+Part	Start Sector	Num Sectors	UUID		Type
+  3	1         	2850816   	00000000-03	05 Extd
+  2	73728     	65536     	00000000-02	06         <--- Bootloader, juste des BMP
+  5	139264    	32768     	00000000-05	83      env
+  6	172032    	32768     	00000000-06	83      boot
+  7	204800    	1572864   	00000000-07	83      system
+  8	1777664   	32768     	00000000-08	83      misc
+  9	1810432   	65536     	00000000-09	83      recovery
+ 10	1875968   	1048576   	00000000-0a	83      cache
+ 11	2924544   	32768     	00000000-0b	83      metadata
+ 12	2957312   	32768     	00000000-0c	83      private
+  1	2990080   	12378112  	00000000-01	0b Boot
+
+--------fastboot partitions--------
+-total partitions:10-
+-name-        -start-       -size-      
+bootloader  : 1000000       2000000     ->         
+env         : 3000000       1000000     -> 32768   part 5
+boot        : 4000000       1000000     -> 32768   part 6
+system      : 5000000       30000000    -> 1572864 part 7
+misc        : 35000000      1000000     -> 32768
+recovery    : 36000000      2000000     -> 65536
+cache       : 38000000      20000000    -> 1048576 part 10
+metadata    : 58000000      1000000     -> 32768   part 11
+private     : 59000000      1000000     -> 32768   part 12
+UDISK       : 5a000000      0           
+-----------------------------------
+
+mmc read 0x42000000 0x276001 0x2D000
+fatwrite usb 0:1 0x42000000 boot14.img size in 32bits!!!
+
+=> fstype mmc 1:1
+ext4
+=> fstype mmc 1:2
+fat
+
+=> ls mmc 1:1 /
+            ./
+            ../
+            lost+found/
+            HWML/
+            dontpanic/
+            misc/
+            local/
+            camera/
+            data/
+            app-private/
+            app-asec/
+            app-lib/
+            app/
+            property/
+            ssh/
+            dalvik-cache/
+            resource-cache/
+            drm/
+            mediadrm/
+    <SYM>   bugreports
+            security/
+            media/
+            user/
+            system/
+            backup/
+        2   .layout_version
+        0   system.notfirstrun.precopy
+        0   system.notfirstrun
+
+4 file(s), 24 dir(s)
+
+Bootloader is a fat16 only containing
+=> ls mmc 1:2    
+            bat/
+   584438   bootlogo.bmp
+   344813   font24.sft
+   357443   font32.sft
+      512   magic.bin
+        0   data.notfirstrun
+

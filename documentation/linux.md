@@ -89,6 +89,23 @@ sudo apt install fbi
 fbi -T 1 -d /dev/fb0 -a ../OIP-2008394785.jpeg 
 ```
 
+ ### Rotate the screen for KlipperScreen
+
+```
+sudo nano /etc/X11/xorg.conf.d/01-armbian-defaults.conf 
+```
+Put this in the file:
+```
+Section "Monitor"
+    Identifier "DSI-1"
+    Option "Rotate" "left"
+EndSection
+```
+
+Restart KlipperScreeen
+```
+sudo systemctl restart KlipperScreen
+```
 
 ## Compilation
 

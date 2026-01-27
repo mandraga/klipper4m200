@@ -346,8 +346,9 @@ bootz 0x42000000 - 0x43000000
 ```
 ```
 cd /mnt/
-mount /dev/sda3 ext4disk/
-mkdir -p fat16disk
+mkdir -p /mnt/ext4disk
+mkdir -p /mnt/fat16disk
+mount /dev/sda1 ext4disk/
 mount /dev/mmcblk2p2 fat16disk
 cp ext4disk/u-boot-*.bin fat16disk/
 sync

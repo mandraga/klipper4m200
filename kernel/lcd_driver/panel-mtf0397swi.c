@@ -296,7 +296,7 @@ static const struct drm_display_mode mtf0397swi_mode = {
 static const struct mtf0397swi_panel_desc mtf0397swi_desc = {
 	.mode = &mtf0397swi_mode,
 	.lanes = 2,
-	.mode_flags = MIPI_DSI_MODE_VIDEO,// | MIPI_DSI_MODE_VIDEO_BURST,
+	.mode_flags = MIPI_DSI_MODE_VIDEO,
 	.format = MIPI_DSI_FMT_RGB888,
 	.init_sequence = mtf0397swi_init_sequence,
 };

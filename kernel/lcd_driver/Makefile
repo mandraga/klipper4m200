@@ -1,6 +1,5 @@
 # Makefile to build only the panel driver from the kernel source
 
-#KERNEL_SRC := /home/patrick/moredata/emmc/armbian_build/cache/sources/linux-kernel-worktree/6.6__sunxi__armhf
 KERNEL_SRC := /usr/src/linux-headers-6.12.51-current-sunxi/drivers/gpu/drm/panel/
 KERNEL_ARCH := arm
 CROSS_COMPILE ?= arm-linux-gnueabihf-

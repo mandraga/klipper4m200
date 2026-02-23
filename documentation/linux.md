@@ -61,9 +61,9 @@ make -C /lib/modules/`uname -r`/build M=$PWD
 Installation
 
 ```
-cp panel-mtf0397swi.ko /lib/modules/$(uname -r)/kernel/drivers/gpu/drm/panel/
-depmod -a
-modprobe panel-mtf0397swi
+sudo cp panel-mtf0397swi.ko /lib/modules/$(uname -r)/kernel/drivers/gpu/drm/panel/
+sudo depmod -a
+sudo modprobe panel-mtf0397swi
 ```
 
 ### Testing the screen

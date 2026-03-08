@@ -22,3 +22,6 @@
 [submodule "submodules/u-boot"]
 	path = submodules/u-boot
 	url = https://github.com/mandraga/u-boot.git
+[submodule "submodules/Print-Tuning-Guide"]
+	path = submodules/Print-Tuning-Guide
+	url = https://github.com/AndrewEllis93/Print-Tuning-Guide.git

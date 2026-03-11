@@ -76,6 +76,17 @@ Be carefull whith the Z axis stop, it is not the same.
 
 The configuration in this repo is the rpanfili one, updated for the Zortrax MCU board instead of the SK1.4.
 
+## Qualibration and tuning
+
+https://ellis3dp.com/Print-Tuning-Guide/
+https://github.com/OrcaSlicer/OrcaSlicer/wiki/Calibration
+
+The ZABS spec
+https://cf.zortrax.com/wp-content/uploads/2020/09/Z-ABS_2_Technical_Data_Sheet_eng.pdf
+
+PID tuning at different fan speeds and in GCODE:
+https://www.youtube.com/watch?v=USvg6D0cXE4
+
 ## Start printing
 
 If everything went fine, you can connect to Mainsail or Fluid web interfaces copy the klipper configuration and start printing.

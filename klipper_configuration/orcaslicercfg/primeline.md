@@ -6,6 +6,7 @@ G1 X2.0 Y2.0 F18000 ; Move to edge of bed
 G1 Z0.2 F5000 ; Lower nozzle
 G92 E0.0 ; Reset extruder position
 G1 X200.0 E32.0 F1000.0 ; Start intro line
+G1 X2.0 Y2.24 F18000 ; Move out of the first line
 G1 X50.0 E14.0 F1000.0 ; Finish thicker line
 G92 E0.0 ; Reset extruder position again
 ; Prime line END

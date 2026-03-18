@@ -49,7 +49,7 @@ To compile panel-mtf0397swi.c as a kernel driver for Armbian, you need to integr
 
 https://www.kernel.org/doc/html/latest/kbuild/modules.html
 
-Compilation
+Compilation. A Makefile with only "obj-m += panel-mtf0397swi.o" is enough.
 
 ```
 scp -o IdentitiesOnly=yes Makefile root@192.168.1.158:/home/patrick/lcd_driver
@@ -113,6 +113,7 @@ Go to the armbian build repo and call "./compile.sh INSTALL_HEADERS=yes", then s
 TODO: add the zortrax to armbian "at your own risk" boards
 Select current kernel with:
 
+### Touchscreen
 - touch screen in 
 Device Drivers --->
     Input device support --->
@@ -120,6 +121,19 @@ Device Drivers --->
             EDT FocalTech FT5x06 I2C Touchscreen support"
 
 CONFIG_TOUCHSCREEN_EDT_FT5X06
+
+#### If it fails for the touchscreen
+Once, the compilation worked but it dit not pack the module on the image.
+In that case, coopy the source from the Armbian build cache and compile on the target:
+
+```
+echo "obj-m += edt-ft5x06.o" > Makefile
+make -C /lib/modules/`uname -r`/build M=$PWD
+cp edt-ft5x06.ko /lib/modules/$(uname -r)/kernel/drivers/input/touchscreen/
+depmod -a
+```
+
+## LCD
 
 You will need to compile the lcd driver for your armbian, using the armbian_build git repository.
 

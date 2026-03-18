@@ -111,7 +111,7 @@ sudo systemctl restart KlipperScreen
 
 Go to the armbian build repo and call "./compile.sh INSTALL_HEADERS=yes", then select kernel compilation.
 TODO: add the zortrax to armbian "at your own risk" boards
-Select legacy kernel with:
+Select current kernel with:
 
 - touch screen in 
 Device Drivers --->

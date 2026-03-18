@@ -415,17 +415,14 @@ md 0x42000000
 ## Copy uboot on the emmc
 
 ```
+// OK erase
 dd if=/dev/zero of=/dev/mmcblk2 bs=512 count=40944 seek=16 status=noxfer
+// OK
 dd if=u-boot-sunxi-with-spl.bin of=/dev/mmcblk2 bs=1024 seek=8 conv=fsync
-
-dd  if=Armbian-unofficial_25.11.0-trunk_Lime-a33_bookworm_legacy_6.6.75_minimal.img of=/dev/mmcblk2 bs=4M
-
-dd if=/dev/zero of=/dev/mmcblk2 bs=512 count=40944 seek=16 status=noxfer
-dd if=sunxi_zotrax_spl_sect16_64sect.bin of=/dev/mmcblk2 bs=512 seek=16 count=64
-dd if=sunxi_zotrax_uboot_sect38192_1664sect.bin of=/dev/mmcblk2 bs=512 seek=38192 count=1664
-
+// OK
 dd if=u-boot-sunxi-with-spl.bin of=/dev/mmcblk2 bs=512 seek=16 conv=fsync
 sync
+// OK
 dd if=u-boot-sunxi-with-spl.bin of=/dev/mmcblk2 bs=1k seek=8
 ```
 

@@ -323,15 +323,17 @@ It is from a design mistake somewhere, we can see it in the vendor linux kernel 
 
 ### Boot using the usb stick (very usefull)
 
+The rootfs is on /dev/sda2, /dev/sda1 is used for files.
+
 ```
-setenv bootargs root=/dev/sda1 rootwait console=ttyS0,115200  rw
+setenv bootargs root=/dev/sda2 rootwait console=ttyS0,115200 rw
 usb start
-ext4load usb 0:1 0x42000000  boot/zImage
-ext4load usb 0:3 0x43000000  sun8i-a33-zortrax-m200plus.dtb
+ext4load usb 0:2 0x42000000  boot/zImage
+ext4load usb 0:1 0x43000000  sun8i-a33-zortrax-m200plus.dtb
 bootz 0x42000000 - 0x43000000
 ```
 ```
-setenv bootargs "root=/dev/sda1 rootwait console=ttyS0,115200"
+setenv bootargs "root=/dev/sda2 rootwait console=ttyS0,115200"
 saveenv
 ```
 ```
@@ -355,6 +357,7 @@ sync
 reboot
 ```
 ```
+mmc dev 2
 fatload mmc 2:2 0x4A000000 u-boot-dtb.bin
 go 0x4A000000
 ```
@@ -525,7 +528,6 @@ bootz 0x42000000 - 0x43000000
 ```
 OK boots from emmc if from uboot in FEL mode, a bit weird. Read only file system.
 
-
 gives Wrong Image Format for bootm command
 ERROR: can't get kernel image!
 
@@ -548,16 +550,19 @@ Boots and hangs?????
 # Chainload uboot from the older one
 
 ```
+mmc dev 2
 fatload mmc 2:2 0x42000000 u-boot-sunxi-with-spl.bin 596216
 go 0x42000000
 ```
 fail
 ```
+mmc dev 2
 fatload mmc 2:2 0x40000000 u-boot-sunxi-with-spl.bin 596216
 go 0x40000000
 ```
 fail
 ```
+mmc dev 2
 fatload mmc 2:2 0x4A000000 u-boot-sunxi-with-spl.bin 596216
 go 0x4A000000
 ```
@@ -568,8 +573,6 @@ DRAM:
 
 Maybe by specifying the DRAM settings
 
-
-
 from last uboot
 ```
 fatload mmc 2:2 0x43000000 u-boot-sunxi-with-spl.bin 596216
@@ -578,6 +581,7 @@ go 0x43000000
 fail
 
 ```
+mmc dev 2
 fatload mmc 2:2 0x4A000000 u-boot.bin 563384
 go 0x4A000000
 ```
@@ -586,6 +590,7 @@ But MMC is messed up
 
 use u-boot-dtb.bin
 ```
+mmc dev 2
 fatload mmc 2:2 0x4A000000 u-boot-dtb.bin
 go 0x4A000000
 ```
@@ -594,6 +599,7 @@ But MMC is still messed up
 
 using u-boot-dtb.bin with EMMC=2
 ```
+mmc dev 2
 fatload mmc 2:2 0x4A000000 u-boot-dtb.bin
 go 0x4A000000
 ```
@@ -613,11 +619,13 @@ usb start
 ext4load usb 0:3 0x4A000000  u-boot-dtb.bin
 go 0x4A000000
 ```
-OK, with MMC 2
+OK, with MMC 2 included
+
+### The command to chainload u-boot from the stock bootloader
 
 ```
 setenv vendorbootcmd "run setargs_mmc boot_normal"
-setenv bootcmd "fatload mmc 2:2 0x4A000000 u-boot-dtb.bin; go 0x4A000000"
+setenv bootcmd "mmc dev 2; fatload mmc 2:2 0x4A000000 u-boot-dtb.bin; go 0x4A000000"
 saveenv
 ```
 
@@ -637,6 +645,7 @@ UUID="33b43a40-9415-4958-b0be-6c5a1e17e26d"
 
 Now from emmc with fixed fstab
 ```
+mmc dev 2
 fatload mmc 2:2 0x4A000000 u-boot-dtb.bin
 go 0x4A000000
 setenv bootargs root=/dev/mmcblk2p1 rootwait console=ttyS0,115200
@@ -660,6 +669,7 @@ NOPE
 
 ## Booting by chain loading from the EMMC FAT16 part, and then loading not from the emmc but from the fat16 partition on usb
 ```
+mmc dev 2
 fatload mmc 2:2 0x4A000000 u-boot-dtb.bin
 go 0x4A000000
 setenv bootargs root=/dev/mmcblk2p1 rootwait console=ttyS0,115200
@@ -673,6 +683,7 @@ But boot fine now.
 
 ## Fatload from the emmc using sunxiboot, and call bootz from the chainloaded mainline uboot
 ```
+mmc dev 2
 fatload mmc 2:2 0x42000000 zimage
 fatload mmc 2:2 0x43000000 sun8i-a33-zortrax-m200plus.dtb
 fatload mmc 2:2 0x4A000000 u-boot-dtb.bin
@@ -684,6 +695,7 @@ Nope
 
 using u-boot.img:
 ```
+mmc dev 2
 fatload mmc 2:2 0x4A000000 u-boot.img
 bootm 0x4A000000
 ```
@@ -702,6 +714,7 @@ ERROR: can't get kernel image!
 
 use u-boot-dtb.img
 ```
+mmc dev 2
 fatload mmc 2:2 0x4A000000 u-boot-dtb.img
 bootm 0x4A000000
 ```

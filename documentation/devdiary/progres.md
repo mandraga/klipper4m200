@@ -276,8 +276,51 @@ And until I can get FEL mode from my u-boot, I will chainload.
 So at 8K we have the primary bootloader in a protected area. And after 0xA000 we have the secondary bootloader which is a u-boot.bin type.
 On my two systems this secondary boot was located at 0x12A6000.
 
-Turns out my new EMMC is not fullysoldered such as it does not enable the 8bit interface. The Boot0 setors shows up but not the other data. Therefore I will flash my u-boot proper to 0x12A6000 to see if it works.
+Turns out my new EMMC seemed not fully soldered such as it does not enable the 8bit interface. The Boot0 sectors shows up but not the other data.
+-> in fact the soldering whent wel it seems, and the problem is already seen on the original firmware which boots fine:
+* The fex file shows that emmc2 is disabled, I assume that the sunxi u-boot source code has been patched for a custom emmc init.
+* In the stock boot, we see a clock reduced to 50Mhz and only 4 bits used instead of 8.
+Once this is applied in the device tree, and once u-boot is compiled with mmc mode command, we can list the emmc partitions in u-boot and boot over emmc and not USB.
+We can also use the device as a mass storage system.
+
+https://docs.u-boot.org/en/latest/usage/cmd/mmc.html
+
+In u-boot, mount the mmc2 in sd card speed mode (50Mhz):
+```
+=> mmc dev 1 0 1
+=> mmc part
+=> mmc rescan
+=> ums 0 mmc 1
+```
+
+The parts apear in linux, we can dump the EMMC or configure the boot process:
+
+Using the m200 as a mass storage (not from Armbian):
+```
+sudo dd if=sunxi_env.img of=/dev/sde5
+```
+
+However it is riskied to do things like this the from Armbian console. You will have soon destroyed one of your drives instead of programmed the m200.
+
+## Installing on the flash.
+
+We cannot at all replace Boot0, too risky. We can flash the stage two in place of the sunxi one an see what is going on.
+Flash my u-boot proper to 0x12A6000 to see if it works.
+
+From Armbian:
+```
+sudo dd if=u-boot-dtb.bin of=/dev/mmcblk2 bs=512 seek=38192
+```
+
+This does not work, stage 1 reports this:
 
 ```
-dd if=u-boot-dtb.bin of=/dev/mmcblk2 bs=512 seek=38192
+[mmc]: ***SD/MMC 2 init OK!!!***
+sdcard 2 init ok
+ERROR! NOT find the head of uboot.
+Ready to disable icache.
+Jump to Fel.
 ```
+
+But the chainloaded uboot would now have access to the EMMC.
+

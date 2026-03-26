@@ -25,3 +25,6 @@
 [submodule "submodules/Print-Tuning-Guide"]
 	path = submodules/Print-Tuning-Guide
 	url = https://github.com/AndrewEllis93/Print-Tuning-Guide.git
+[submodule "submodules/A33_M2"]
+	path = submodules/A33_M2
+	url = https://github.com/xianxuhappy/A33_M2

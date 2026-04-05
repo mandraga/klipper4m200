@@ -5,7 +5,14 @@ A replacement firmare for the Zortrax M200+ 3D printer.
 This firmware is based on Debian/Armbian and allows to install klipper on the m200+.
 There is no comming back once the microcontroller is flashed.
 
-## Access the internal single board comuter
+# Building steps
+
+Update the submodules, or get them separately.
+* Armbian build
+* u-boot
+* sunxi-tools
+
+## Access the internal single board computer
 
 You need:
 * a serial port on the UART0 J5 connector for the u-boot and Linux serial console.
@@ -18,7 +25,7 @@ ID 1f3a:efe8 Allwinner Technology sunxi SoC OTG connector in FEL/flashing mode
 ```
 Then, using sunxi-tools, you can upload a uboot image like this:
 ```
-sunxi-tools$ sudo ./sunxi-fel uboot u-boot-sunxi-with-spl.bin
+sunxi-tools$ sudo ./sunxi-fel uboot ../u-boot/u-boot-sunxi-with-spl.bin
 ```
 It starts uboot and you can browse files and dump data.
 
@@ -47,7 +54,7 @@ The original emmc is not that much altered, only the env. You can resore it with
 ### Get the network
 
 On version 2.1, Linux should detect the ethernet usb adapter on the USB port.
-On version 1.1, since USB0 was cut to break in, you need to connect some ethernet adapter to the usb port or hub before.
+On version 1.1, since USB0 musb be cut to break in, you need to connect some ethernet adapter to the usb hub.
 Connect your printer to the network.
 
 ### Install klipper
@@ -76,7 +83,7 @@ Be carefull whith the Z axis stop, it is not the same.
 
 The configuration in this repo is the rpanfili one, updated for the Zortrax MCU board instead of the SK1.4.
 
-## Qualibration and tuning
+## Calibration and tuning
 
 https://ellis3dp.com/Print-Tuning-Guide/
 https://github.com/OrcaSlicer/OrcaSlicer/wiki/Calibration

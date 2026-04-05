@@ -52,8 +52,7 @@ https://www.kernel.org/doc/html/latest/kbuild/modules.html
 Compilation. A Makefile with only "obj-m += panel-mtf0397swi.o" is enough.
 
 ```
-scp -o IdentitiesOnly=yes Makefile root@192.168.1.158:/home/patrick/lcd_driver
-scp -o IdentitiesOnly=yes panel-mtf0397swi.c root@192.168.1.158:/home/patrick/lcd_driver
+scp -o IdentitiesOnly=yes panel-mtf0397swi.c root@192.168.1.158:/home/user/lcd_driver
 echo "obj-m += panel-mtf0397swi.o" > Makefile
 make -C /lib/modules/`uname -r`/build M=$PWD
 ```
@@ -266,3 +265,44 @@ Drivers on the vendor system:
 #### Installation
 
 We place the module in the image, and add compatible "MTF0397SWI-06, sl698ph_720p" to the device tree pannel object.
+
+
+### Wifi
+
+It is a rtl8188eu if we look at the logs but AP6210 on the board.
+
+### Wifi
+
+Linux Kernel Configuration  
+└─>Device Drivers  
+    └─>Network device support  
+        └─>Wireless LAN  
+            └─>Realtek RTL8188EU Wireless LAN NIC driver
+
+Could also be a RTL8723BS
+Linux Kernel Configuration
+└─>Device Drivers
+    └─>Staging drivers
+        └─>Wireless LAN
+            └─>MMC/SD/SDIO card support
+                └─>Realtek RTL8723BS SDIO Wireless LAN NIC driver 
+
+
+
+```
+[    0.668179] [wifi]: select wifi: rtl8188eu !!
+[    0.668426] [rtl8188eu]: exec rtl8188eu_wifi_gpio_init
+[    0.668442] [rtl8188eu]: module power name axp22_dldo1
+[    0.668453] [rtl8188eu]: module power ext1 name 
+[    0.668463] [rtl8188eu]: module power ext2 name 
+[    0.668474] [rtl8188eu]: rtl8188eu module power set by axp.
+[    0.668611] [rtl8188eu]: get power regulator  failed.
+[    0.668623] [rtl8188eu]: first time
+[    0.668846] [wifi_pm]: wifi gpio init is OK !!
+
+```
+
+It can work in USB mode, or use the SDIO + uart interface. The usb wifi shipped on the m200+ rev 2.1 is also a RTL8188EU. The module is rtl8xxxu.
+
+
+

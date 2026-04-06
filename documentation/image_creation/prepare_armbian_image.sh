@@ -24,7 +24,7 @@ mount $PART_ROOT $DIR_INSTALL
 cp uboot.env  $DIR_INSTALL/boot
 cp u-boot-dtb.bin $DIR_INSTALL/boot
 cp sun8i-a33-zortrax-m200plus.dtb $DIR_INSTALL/boot/dtb
-cp env.img  $DIR_INSTALL/boot
+cp sunxi_env.img  $DIR_INSTALL/boot
 cp install_u-boot-mainline.sh $DIR_INSTALL/bin/
 sync
 

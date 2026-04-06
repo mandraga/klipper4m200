@@ -184,7 +184,7 @@ IT WAS A MISTAKE! Yes u-boot started, but could not find any EMMC and I COULD NO
 again! Below is the log of what I did from the armbian console:
 
 ```
-patrick@lime-a33:~$ sudo dd if=u-boot-sunxi-with-spl.bin of=/dev/mmcblk2 bs=1024 seek=8
+patrick@lime-a33:~$ sudo dd if=u-boot-sunxi-with-spl.bin of=/dev/mmcblk2 bs=1024 seek=8 DO NOT DO THAT!!!
 [sudo] Mot de passe de patrick : 
 [  433.610039]  mmcblk2: p1 p2 p3 < p5 p6 p7 p8 p9 p10 p11 p12 >
 [  433.615911] mmcblk2: p1 size 12378112 extends beyond EOD, truncated
@@ -323,4 +323,35 @@ Jump to Fel.
 ```
 
 But the chainloaded uboot would now have access to the EMMC.
+
+No chainload works with EMMC, loading linux from th esunxi bootloader fials, event with their zImage.
+The system is so closed, that I do not want to change Boot0. And I replaced my EMMC twice so enoug.
+However the MMC performances are great compared to a Sandisk Cruzer blade. I made my tests for a while on a USB3 memory stick. It is gread but Armbian gives a warning "slow drive" with the Sandisk.
+I have found a way to encasulate u-boot-dtb.bin in the sunxi format.
+I will make a app to encapsulate mainline u-boot in sunxi format.
+It wil be called sunxisecondstagetool.
+
+#$ sunxisecondstagetool u-boot-dtb.bin
+
+## And rebrick!
+
+I managed to overwrite again the EMMC! Using the wrong command, and the write protection failed prior to that. While I double checked it did not work.
+
+### Boor protection:
+
+```
+cat /sys/block/mmcblk2boot1/ro
+cat /sys/block/mmcblk2boot1/force_ro
+and
+sudo mmc extcsd read /dev/mmcblk2 | grep -E 'BOOT_WP|BOOT_CONFIG_PROT|PARTITION_CONFIG|USER_WP'
+```
+
+* BOOT_WP: 0x00 → no boot partition write protection set
+* nonzero BOOT_WP → temporary or permanent boot write protection is enabled
+
+
+### A33 core schematics.
+
+I found some schematis for the A33 Core board (https://github.com/xianxuhappy/A33_M2).
+So, the only positive thing, is that if you brick the board, there is a sdio1 on the wifi chip. So maybe after removing the emmc, the chip will boot on SDC1.
 

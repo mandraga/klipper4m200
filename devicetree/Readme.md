@@ -1,6 +1,6 @@
 # Mainline linux device tree and u-boot
 
-For the device tree, see git@github.com:mandraga/u-boot.git
+For the device tree, see git@github.com:mandraga/u-boot.git on the branch zortrax-m200plus.
 
 # Original fex file from the vendor bootloader stage 2
 

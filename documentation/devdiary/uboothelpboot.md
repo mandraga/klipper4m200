@@ -432,7 +432,7 @@ dd if=/dev/mmcblk2p5 of=sunxi_env.img bs=1k count=4
 ```
 Change the env image
 ```
-dd if=env.img of=/dev/mmcblk2p5
+dd if=sunxi_env.img of=/dev/mmcblk2p5
 ```
 
 Mout the FAT16 partition and copy the kernel and dtb
@@ -445,6 +445,7 @@ umount fat16disk
 ```
 ```
 cd /mnt/
+mkdir -p ext4disk
 mount /dev/sda1 ext4disk/
 mount /dev/mmcblk2p2 fat16disk
 cp ext4disk/u-boot-*.bin fat16disk/
@@ -798,29 +799,22 @@ Hangs and reboots
 ## DO NOT TRY AT HOME
 
 !!!!!!!!!!!!!!! BRICKs the board !!!!!!!!!!!!!!!!!!!!
--------------------------- THIS BREAKS THE BOARD, NO FEL MODE AFTER THAT!!!!  ----------------------------
-Wipe it:
+------------------- THIS BREAKS THE BOARD, NO FEL MODE AFTER THAT!!!! ------------------------
+Removes the write protection (never do that):
 echo 0 > /sys/block/mmcblk2boot0/force_ro
-echo 0 > /sys/block/mmcblk2boot1/force_ro
-dd if=/dev/zero of=/dev/mmcblk2boot0 bs=1k count=4095 seek=1 status=noxfer
-dd if=/dev/zero of=/dev/mmcblk2boot1 bs=1k count=4095 seek=1 status=noxfer
-
-Now flash new u-boot bootloader into boot partitions:
+To flash new u-boot bootloader into boot partitions:
 dd if=u-boot-sunxi-with-spl.bin of=/dev/mmcblk2boot0 bs=1024 seek=8 status=noxfer
-dd if=u-boot-sunxi-with-spl.bin of=/dev/mmcblk2boot1 bs=1024 seek=8 status=noxfer
 Because it is loaded but hangs and does not help with anything but bricks the board
 since the FEL mode is not available anymore.
 !!!!!!!!!!!!!!! BRICKs the board !!!!!!!!!!!!!!!!!!!!
 
 After that your board is a brick, you need to replace the EMMC with a new programmed one.
-------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------
 
+## Dump the bootlader stages
 ```
 dd if=/dev/mmcblk2 bs=512 skip=16 count=1 | hexdump -C
 dd if=/dev/mmcblk2 bs=512 skip=38192 count=1 | hexdump -C
-```
-```
-dd if=sunxi_zotrax_spl_sect16_64sect.bin of=/dev/mmcblk2 bs=512 seek=16 count=64
 ```
 
 ## Uboot SPL
@@ -828,11 +822,13 @@ dd if=sunxi_zotrax_spl_sect16_64sect.bin of=/dev/mmcblk2 bs=512 seek=16 count=64
 ```
 dd if=/dev/mmcblk2 bs=512 skip=16 count=1 | hexdump -C
 ```
-## U-Boot SPL area is 0x8000 (protected BOO0 partition). The sunxi one is much further away.
 
-```
-dd if=/dev/mmcblk2 bs=512 skip=80 count=1 | hexdump -C
-```
+U-Boot SPL area is 0x8000 (protected BOO0 partition). It is the program starting the FEL mode
+and loading the secondary sunxi bootloader at sector 38192.
+
+Trying to write uboot.img at the same place as the original zortrax uboot
+dd if=u-boot.img of=/dev/mmcblk2 bs=512 seek=38192 conv=fsync
+Does not work
 
 The boot0 code is not able to load this code. It says:
 ```
@@ -840,10 +836,7 @@ The boot0 code is not able to load this code. It says:
 sdcard 2 init ok
 ERROR! NOT find the head of uboot.
 ```
-
-Trying to write uboot.img at the same place as the original zortrax uboot
-dd if=u-boot.img of=/dev/mmcblk2 bs=512 seek=38192 conv=fsync
-Does not work
+Turns out Sunxi has his format.
 
 ## Disguising our u-boot-dtb.bin as a sunxi code.
 
@@ -1075,7 +1068,7 @@ $:~/moredata/emmc/Zortrax_OK$ /usr/local/bin/sunxi-fw info -v emmc.image
 		TPR13       :     0x10901           0           0
 
 
-### Sunxi boot roms release dates on th eprinter
+### Sunxi boot roms release dates on the printer
 
 mmcblk2boot0 primary bootloader:
 [mmc]: mmc driver ver 2014-07-07 16:54

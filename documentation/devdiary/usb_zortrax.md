@@ -91,7 +91,7 @@ https://linux-sunxi.org/USB_OTG_Controller_Register_Guide
 
 ### Cables
 
-Uses Ph2 9mm connectors
+Uses JST PH2.0 9mm connectors
 
 https://fr.aliexpress.com/item/1005004723638618.html?spm=a2g0o.productlist.main.12.1a052492dYNovf&algo_pvid=ea23ed34-fa46-4497-9353-a5ebe9ef0fda&algo_exp_id=ea23ed34-fa46-4497-9353-a5ebe9ef0fda-11&pdp_ext_f=%7B%22order%22%3A%2218%22%2C%22eval%22%3A%221%22%2C%22fromPage%22%3A%22search%22%7D&pdp_npi=6%40dis%21EUR%211.19%211.21%21%21%211.36%211.38%21%402103856417616849636297202ea9d4%2112000030235832075%21sea%21FR%21177031303%21X%211%210%21n_tag%3A-29919%3Bd%3A9315576%3Bm03_new_user%3A-29895&curPageLogUid=tPvdFLsMdEuc&utparam-url=scene%3Asearch%7Cquery_from%3A%7Cx_object_id%3A1005004723638618%7C_p_origin_prod%3A
 

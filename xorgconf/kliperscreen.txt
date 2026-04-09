@@ -1,0 +1,11 @@
+The u-boot chainloading seems to mess up the lcd driver.
+Add this to /home/user/KlipperScreen/scripts/KlipperScreen-start.sh in order to reinint the lcd screen.
+
+```
+/sbin/modprobe -r panel-mtf0397swi
+/sbin/modprobe panel-mtf0397swi
+sleep 0.5
+```
+
+sudo systemctl stop KlipperScreen
+sudo systemctl start KlipperScreen

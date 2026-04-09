@@ -247,8 +247,9 @@ Verification Complete: SHA = 937D058BE91B1866070F106B6476898C47725810
 Programming Complete
 ```
 
-### Re enter bootloader
+### Update the firmware using the bootloader
 
+Once klipper installed with the STM32 programmer, we can update the firmware using the serial port.
 If fuser of the Klipper serial port returns something, then stop the Klipper service.
 ```
 fuser /dev/ttyS2

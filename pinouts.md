@@ -2,7 +2,7 @@
 
 ## P3 Single Board Computer to Micro Controller Unit
 
-It goes through a level shifter, to be investigated.
+It goes through a level shifter, and the labels are obfuscated.
 
 1  TX
 2  RX
@@ -17,8 +17,8 @@ It goes through a level shifter, to be investigated.
 
 ## SDIO
 
-The two first SD card slots are not populated. SDIO_0 goes to an unpopulated SDWifi chip.
-SDIO_1 has no traces outside of the SOM board.
+The first SD card slots is not populated. 
+SDIO_0 has no traces outside of the SOM board, SDIO_1 goes to an unpopulated SDWifi chip..
 A test to use it with a card did not work.
 
 ## LED

@@ -10,6 +10,7 @@ Until the UMS mode works, we can use scripts to break the image into 16MB files 
 ## Transfer using linux
 
 We can boot an image from the usb drive and use this image to flash the device.
+From the zortrax single board computer:
 
 ```
 setenv bootargs root=/dev/sda1 rootwait console=ttyS0,115200  rw

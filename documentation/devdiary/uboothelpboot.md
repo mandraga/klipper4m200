@@ -323,15 +323,17 @@ It is from a design mistake somewhere, we can see it in the vendor linux kernel 
 
 ### Boot using the usb stick (very usefull)
 
+The rootfs is on /dev/sda2, /dev/sda1 is used for files.
+
 ```
-setenv bootargs root=/dev/sda1 rootwait console=ttyS0,115200  rw
+setenv bootargs root=/dev/sda2 rootwait console=ttyS0,115200 rw
 usb start
-ext4load usb 0:1 0x42000000  boot/zImage
-ext4load usb 0:3 0x43000000  sun8i-a33-zortrax-m200plus.dtb
+ext4load usb 0:2 0x42000000  boot/zImage
+ext4load usb 0:1 0x43000000  sun8i-a33-zortrax-m200plus.dtb
 bootz 0x42000000 - 0x43000000
 ```
 ```
-setenv bootargs "root=/dev/sda1 rootwait console=ttyS0,115200"
+setenv bootargs "root=/dev/sda2 rootwait console=ttyS0,115200"
 saveenv
 ```
 ```
@@ -346,14 +348,16 @@ bootz 0x42000000 - 0x43000000
 ```
 ```
 cd /mnt/
-mount /dev/sda3 ext4disk/
-mkdir -p fat16disk
+mkdir -p /mnt/ext4disk
+mkdir -p /mnt/fat16disk
+mount /dev/sda1 ext4disk/
 mount /dev/mmcblk2p2 fat16disk
 cp ext4disk/u-boot-*.bin fat16disk/
 sync
 reboot
 ```
 ```
+mmc dev 2
 fatload mmc 2:2 0x4A000000 u-boot-dtb.bin
 go 0x4A000000
 ```
@@ -407,30 +411,11 @@ bootz 0x42000000 - 0x43000000
 ```
 
 # Read the bootloader from the emmc at sector 16
+
 ```
 mmc read 0x42000000 0x10 0x10
 md 0x42000000
 ```
-## Copy uboot on the emmc
-
-```
-dd if=/dev/zero of=/dev/mmcblk2 bs=512 count=40944 seek=16 status=noxfer
-dd if=u-boot-sunxi-with-spl.bin of=/dev/mmcblk2 bs=1024 seek=8 conv=fsync
-
-dd  if=Armbian-unofficial_25.11.0-trunk_Lime-a33_bookworm_legacy_6.6.75_minimal.img of=/dev/mmcblk2 bs=4M
-
-dd if=/dev/zero of=/dev/mmcblk2 bs=512 count=40944 seek=16 status=noxfer
-dd if=sunxi_zotrax_spl_sect16_64sect.bin of=/dev/mmcblk2 bs=512 seek=16 count=64
-dd if=sunxi_zotrax_uboot_sect38192_1664sect.bin of=/dev/mmcblk2 bs=512 seek=38192 count=1664
-
-dd if=u-boot-sunxi-with-spl.bin of=/dev/mmcblk2 bs=512 seek=16 conv=fsync
-sync
-dd if=u-boot-sunxi-with-spl.bin of=/dev/mmcblk2 bs=1k seek=8
-```
-
-A solution would be to use the sunxi bootloader and copy the kernel and the dtb into the FAT16
-partition and change env variables to boot using it.
-Reformat the main partition as ext4, and copy Armbian legacy rootfs into the main partition.
 
 ### Trying to use the original image
 
@@ -447,7 +432,7 @@ dd if=/dev/mmcblk2p5 of=sunxi_env.img bs=1k count=4
 ```
 Change the env image
 ```
-dd if=env.img of=/dev/mmcblk2p5
+dd if=sunxi_env.img of=/dev/mmcblk2p5
 ```
 
 Mout the FAT16 partition and copy the kernel and dtb
@@ -460,6 +445,7 @@ umount fat16disk
 ```
 ```
 cd /mnt/
+mkdir -p ext4disk
 mount /dev/sda1 ext4disk/
 mount /dev/mmcblk2p2 fat16disk
 cp ext4disk/u-boot-*.bin fat16disk/
@@ -527,7 +513,6 @@ bootz 0x42000000 - 0x43000000
 ```
 OK boots from emmc if from uboot in FEL mode, a bit weird. Read only file system.
 
-
 gives Wrong Image Format for bootm command
 ERROR: can't get kernel image!
 
@@ -536,6 +521,39 @@ ERROR: can't get kernel image!
 ```
 mkimage -A arm -O linux -T kernel -C none -a 0x40008000 -e 0x40008000 -n "Linux Kernel" -d zImage uImage
 ```
+
+setenv bootargs root=/dev/sda2 rootwait console=ttyS0,115200
+fatload mmc 2:2 0x42000000 uImage
+fatload mmc 2:2 0x43000000 sun8i-a33-zortrax-m200plus.dtb
+bootm 0x42000000 - 0x43000000
+
+Fail
+
+
+```
+gzip -1 -c Image > Image.gz
+mkimage -A arm -O linux -T kernel -C gzip -a 0x42008000 -e 0x42008000 -n "Linux Kernel" -d Image.gz uImage
+```
+
+Uncompressed:
+Booting kernel from Legacy Image at 42000000 ...
+   Image Name:   Linux Kernel
+   Image Type:   ARM Linux Kernel Image (gzip compressed)
+   Data Size:    11292864 Bytes = 10.8 MiB
+   Load Address: 42000000
+   Entry Point:  42000000
+   Verifying Checksum ... OK
+   Uncompressing Kernel Image ... 
+Stuck
+
+Using the Zortrax kernel:
+```
+mkimage -A arm -O linux -T kernel -C none -a 0x40008000 -e 0x40008000 -n "Linux Kernel" -d zImageZ uImage
+```
+undefined instruction
+pc : [<4000800c>]	   lr : [<7fb153ac>]
+
+
 
 ### Boot
 
@@ -550,17 +568,20 @@ Boots and hangs?????
 # Chainload uboot from the older one
 
 ```
+mmc dev 2
 fatload mmc 2:2 0x42000000 u-boot-sunxi-with-spl.bin 596216
 go 0x42000000
 ```
 fail
 ```
+mmc dev 2
 fatload mmc 2:2 0x40000000 u-boot-sunxi-with-spl.bin 596216
 go 0x40000000
 ```
 fail
 ```
-fatload mmc 2:2 0x4A000000 u-boot-sunxi-with-spl.bin 596216
+mmc dev 2
+fatload mmc 2:2 0x4A000000 u-boot-sunxi-with-spl.bin
 go 0x4A000000
 ```
 semi fail from the sunxi uboot
@@ -570,8 +591,6 @@ DRAM:
 
 Maybe by specifying the DRAM settings
 
-
-
 from last uboot
 ```
 fatload mmc 2:2 0x43000000 u-boot-sunxi-with-spl.bin 596216
@@ -580,6 +599,7 @@ go 0x43000000
 fail
 
 ```
+mmc dev 2
 fatload mmc 2:2 0x4A000000 u-boot.bin 563384
 go 0x4A000000
 ```
@@ -588,6 +608,7 @@ But MMC is messed up
 
 use u-boot-dtb.bin
 ```
+mmc dev 2
 fatload mmc 2:2 0x4A000000 u-boot-dtb.bin
 go 0x4A000000
 ```
@@ -596,6 +617,7 @@ But MMC is still messed up
 
 using u-boot-dtb.bin with EMMC=2
 ```
+mmc dev 2
 fatload mmc 2:2 0x4A000000 u-boot-dtb.bin
 go 0x4A000000
 ```
@@ -615,11 +637,13 @@ usb start
 ext4load usb 0:3 0x4A000000  u-boot-dtb.bin
 go 0x4A000000
 ```
-OK, with MMC 2
+OK, with MMC 2 included
+
+### The command to chainload u-boot from the stock bootloader
 
 ```
 setenv vendorbootcmd "run setargs_mmc boot_normal"
-setenv bootcmd "fatload mmc 2:2 0x4A000000 u-boot-dtb.bin; go 0x4A000000"
+setenv bootcmd "mmc dev 2; fatload mmc 2:2 0x4A000000 u-boot-dtb.bin; go 0x4A000000"
 saveenv
 ```
 
@@ -639,6 +663,7 @@ UUID="33b43a40-9415-4958-b0be-6c5a1e17e26d"
 
 Now from emmc with fixed fstab
 ```
+mmc dev 2
 fatload mmc 2:2 0x4A000000 u-boot-dtb.bin
 go 0x4A000000
 setenv bootargs root=/dev/mmcblk2p1 rootwait console=ttyS0,115200
@@ -662,6 +687,7 @@ NOPE
 
 ## Booting by chain loading from the EMMC FAT16 part, and then loading not from the emmc but from the fat16 partition on usb
 ```
+mmc dev 2
 fatload mmc 2:2 0x4A000000 u-boot-dtb.bin
 go 0x4A000000
 setenv bootargs root=/dev/mmcblk2p1 rootwait console=ttyS0,115200
@@ -675,6 +701,7 @@ But boot fine now.
 
 ## Fatload from the emmc using sunxiboot, and call bootz from the chainloaded mainline uboot
 ```
+mmc dev 2
 fatload mmc 2:2 0x42000000 zimage
 fatload mmc 2:2 0x43000000 sun8i-a33-zortrax-m200plus.dtb
 fatload mmc 2:2 0x4A000000 u-boot-dtb.bin
@@ -686,6 +713,7 @@ Nope
 
 using u-boot.img:
 ```
+mmc dev 2
 fatload mmc 2:2 0x4A000000 u-boot.img
 bootm 0x4A000000
 ```
@@ -704,6 +732,7 @@ ERROR: can't get kernel image!
 
 use u-boot-dtb.img
 ```
+mmc dev 2
 fatload mmc 2:2 0x4A000000 u-boot-dtb.img
 bootm 0x4A000000
 ```
@@ -770,29 +799,22 @@ Hangs and reboots
 ## DO NOT TRY AT HOME
 
 !!!!!!!!!!!!!!! BRICKs the board !!!!!!!!!!!!!!!!!!!!
--------------------------- THIS BREAKS THE BOARD, NO FEL MODE AFTER THAT!!!!  ----------------------------
-Wipe it:
+------------------- THIS BREAKS THE BOARD, NO FEL MODE AFTER THAT!!!! ------------------------
+Removes the write protection (never do that):
 echo 0 > /sys/block/mmcblk2boot0/force_ro
-echo 0 > /sys/block/mmcblk2boot1/force_ro
-dd if=/dev/zero of=/dev/mmcblk2boot0 bs=1k count=4095 seek=1 status=noxfer
-dd if=/dev/zero of=/dev/mmcblk2boot1 bs=1k count=4095 seek=1 status=noxfer
-
-Now flash new u-boot bootloader into boot partitions:
+To flash new u-boot bootloader into boot partitions:
 dd if=u-boot-sunxi-with-spl.bin of=/dev/mmcblk2boot0 bs=1024 seek=8 status=noxfer
-dd if=u-boot-sunxi-with-spl.bin of=/dev/mmcblk2boot1 bs=1024 seek=8 status=noxfer
 Because it is loaded but hangs and does not help with anything but bricks the board
 since the FEL mode is not available anymore.
 !!!!!!!!!!!!!!! BRICKs the board !!!!!!!!!!!!!!!!!!!!
 
 After that your board is a brick, you need to replace the EMMC with a new programmed one.
-------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------
 
+## Dump the bootlader stages
 ```
 dd if=/dev/mmcblk2 bs=512 skip=16 count=1 | hexdump -C
 dd if=/dev/mmcblk2 bs=512 skip=38192 count=1 | hexdump -C
-```
-```
-dd if=sunxi_zotrax_spl_sect16_64sect.bin of=/dev/mmcblk2 bs=512 seek=16 count=64
 ```
 
 ## Uboot SPL
@@ -800,11 +822,13 @@ dd if=sunxi_zotrax_spl_sect16_64sect.bin of=/dev/mmcblk2 bs=512 seek=16 count=64
 ```
 dd if=/dev/mmcblk2 bs=512 skip=16 count=1 | hexdump -C
 ```
-## U-Boot SPL area for mainline u-boot 0x8000. The sunxi one is much further away.
 
-```
-dd if=/dev/mmcblk2 bs=512 skip=80 count=1 | hexdump -C
-```
+U-Boot SPL area is 0x8000 (protected BOO0 partition). It is the program starting the FEL mode
+and loading the secondary sunxi bootloader at sector 38192.
+
+Trying to write uboot.img at the same place as the original zortrax uboot
+dd if=u-boot.img of=/dev/mmcblk2 bs=512 seek=38192 conv=fsync
+Does not work
 
 The boot0 code is not able to load this code. It says:
 ```
@@ -812,11 +836,142 @@ The boot0 code is not able to load this code. It says:
 sdcard 2 init ok
 ERROR! NOT find the head of uboot.
 ```
+Turns out Sunxi has his format.
 
-Trying to write uboot.img at the same place as the original zortrax uboot
-dd if=u-boot.img of=/dev/mmcblk2 bs=512 seek=38192 conv=fsync
-Does not work
+## Disguising our u-boot-dtb.bin as a sunxi code.
 
+Allwinner gave the source code here https://github.com/allwinner-zh/bootloader.git and it shows all the checks it does.
+Maybe we can alter out u-boot to passe the checks.
+
+```
+struct spare_boot_ctrl_head
+{
+	unsigned int  jump_instruction;   // one intruction jumping to real code
+	unsigned char magic[8];           // ="u-boot"
+	unsigned int  check_sum;          // generated by PC
+	unsigned int  align_size;		  // align size in byte
+	unsigned int  length;             // the size of all file
+	unsigned int  uboot_length;       // the size of uboot
+	unsigned char version[8];         // uboot version
+	unsigned char platform[8];        // platform information
+	int           reserved[1];        // stamp space, 16bytes align
+};
+```
+Them bootloader is from 0x12A6000 to 0x1375FFF which is 851967 Bytes.
+Our u-boot-dtb.bin is 574624 Bytes, it is possible so sneak it in.
+I requires a tool building the decorum around it.
+
+hexdump -C -n 1024 sunxi_zotrax_uboot_sect38192_1664sect.bin
+
+### Field Recovery on copilot
+
+jump_instruction (4 bytes)
+
+Offset: 0x00000000
+Value: 3e 01 00 ea
+Interpretation: Little-endian, so the value is 0xEA00013E.
+
+magic (8 bytes)
+Offset: 0x00000004
+Value: 75 62 6f 6f 74 00 00 00
+Interpretation: ASCII string "uboot\0\0\0".
+
+check_sum (4 bytes)
+Offset: 0x0000000C
+Value: b7 50 3a 24
+Interpretation: Little-endian, so the value is 0x243A50B7.
+
+align_size (4 bytes)
+Offset: 0x00000010
+Value: 00 40 00 00
+Interpretation: Little-endian, so the value is 0x00004000 (16 KB).
+
+length (4 bytes)
+Offset: 0x00000014
+Value: 00 c0 0b 00
+Interpretation: Little-endian, so the value is 0x000BC000 (753,664 bytes).
+
+uboot_length (4 bytes)
+Offset: 0x00000018
+Value: 00 00 0b 00
+Interpretation: Little-endian, so the value is 0x000B0000 (720,896 bytes).
+
+version (8 bytes)
+Offset: 0x0000001C
+Value: 31 2e 31 2e 30 00 00 00
+Interpretation: ASCII string "1.1.0\0\0\0".
+
+platform (8 bytes)
+Offset: 0x00000024
+Value: 31 2e 30 2e 30 00 00 00
+Interpretation: ASCII string "1.0.0\0\0\0".
+
+reserved (4 bytes)
+Offset: 0x0000002C
+Value: 00 00 00 4A
+Interpretation: Little-endian, so the value is 0x4A000000.
+
+## Our thing
+
+```
+struct spare_boot_ctrl_head
+{
+	unsigned int  jump_instruction;   // one intruction jumping to real code pout our start
+	unsigned char magic[8];           // Constant              const "uboot" 
+	unsigned int  check_sum;          // generated by PC to be programmed
+	unsigned int  align_size;		  // align size in byte  0x00004000 16KB, uboot_length is a multiple of it, we wil pad with zeros
+	unsigned int  length;             // the size of all file our file size
+	unsigned int  uboot_length;       // the size of uboot (same as above we do not use fex data, our index is in the bin data)
+	unsigned char version[8];         // uboot version         const "1.1.0\0\0\0"
+	unsigned char platform[8];        // platform information  const "1.0.0\0\0\0"
+	int           reserved[1];        //stamp space, 16bytes align const 0x4A00000
+};
+```
+Followed by
+```
+struct spare_boot_data_head
+{
+	unsigned int				dram_para[32];
+	int							run_clock;				// Mhz
+	int							run_core_vol;			// mV
+	int							uart_port;              // UART���������
+	normal_gpio_cfg             uart_gpio[2];           // UART������(���Դ�ӡ��)GPIO��Ϣ
+	int							twi_port;               // TWI���������
+	normal_gpio_cfg             twi_gpio[2];            // TWI������GPIO��Ϣ�����ڿ���TWI
+	int		                    work_mode;              // ����ģʽ
+    int                         storage_type;           // �洢��������  0��nand   1��sdcard    2: spinor
+    normal_gpio_cfg             nand_gpio[32];          // nand GPIO��Ϣ
+    char						nand_spare_data[256];	// nand ������Ϣ
+    normal_gpio_cfg             sdcard_gpio[32];		// sdcard GPIO��Ϣ
+    char             			sdcard_spare_data[256];	// sdcard ������Ϣ
+    int							reserved[2];			// ��������λ, 16bytes align
+};
+
+[Copilot]
+Assuming this dump starts at spare_boot_data_head offset 0x00 (your line starts at absolute 0x30, i.e. right after spare_boot_ctrl_head), and values are little-endian:
+
+dram_para[32] (0x00..0x7F): all 0x00000000
+run_clock (0x80): 0x000003F0 = 1008 MHz
+run_core_vol (0x84): 0x000004B0 = 1200 mV
+uart_port (0x88): 0x00000000 = UART0
+normal_gpio_cfg (8 bytes each, typical layout: port, pin, mul_sel, pull, drv, data, rsv0, rsv1):
+
+uart_gpio[0] (0x8C): 06 02 03 01 FF FF 00 00
+port=6, pin=2, mul=3, pull=1, drv/data=FF (default/ignored)
+uart_gpio[1] (0x94): 06 04 03 01 FF FF 00 00
+port=6, pin=4, mul=3, pull=1, drv/data=FF
+twi_port (0x9C): 0x00000000 = TWI0
+twi_gpio[0] (0xA0): 08 02 02 FF FF FF 00 00
+port=8, pin=2, mul=2
+twi_gpio[1] (0xA8): 08 03 02 FF FF FF 00 00
+port=8, pin=3, mul=2
+Then:
+
+work_mode (0xB0): 0x00000000
+storage_type (0xB4): 0x00000000 (NAND per your comment)
+Everything shown after that is mostly zero and falls into nand_gpio[] / spare data region. The FF..FF block near absolute 0x3E8 is inside that area, not the final reserved[2] yet.
+[/Copilot]
+```
 
 # Read the sunxi boot spl area
 
@@ -913,7 +1068,7 @@ $:~/moredata/emmc/Zortrax_OK$ /usr/local/bin/sunxi-fw info -v emmc.image
 		TPR13       :     0x10901           0           0
 
 
-### Sunxi boot roms release dates on th eprinter
+### Sunxi boot roms release dates on the printer
 
 mmcblk2boot0 primary bootloader:
 [mmc]: mmc driver ver 2014-07-07 16:54
@@ -923,3 +1078,13 @@ U-Boot 2011.09-rc1 (Mar 21 2017 - 01:10:46) Allwinner Technology
 
 2011.09-rc1 compiled the 21 Mar 2017
 
+### Fourth brick
+
+I managed to load u-boot-dtb.bin from sunxi SPL, but the FEL mode in not enabled if it can boot the second stage.
+And since the second stage boot failed with mainline u-boot, I was stuck.
+I should have tested on a SD card on my ezeetab 96Q10 system.
+Now I am good to replace my EMMC. I did not check if the MMC worked on the latest chainloadings.
+
+#### Trying chainload on my last working printer
+
+It seems that emmc works when chainloading now. So I will keep the chainloading process and never touch the zortrax bootloader again.

@@ -1,4 +1,4 @@
-## Youtube onthe open source  Zortrax Marlin port
+## Youtube on the open source  Zortrax Marlin port
 
 https://www.youtube.com/watch?v=6i0SUXQyLa4
 
@@ -39,11 +39,11 @@ Nearly the same, when looked from a distance.
 ## Zortrax Machine
 
 * A33
-* 2GB DDR3
-* 4GB EMMC
+* 1GB DDR3
+* 8GB EMMC
 * 2 usb ports
 * UART0 J5 console port (molex)
-* HOME/FEL mode button
+* HOME/FEL mode button (only for android)
 
 Pinout in A33-core3.pdf
 Adafruit SSDIO breakout board:
@@ -54,6 +54,7 @@ https://www.adafruit.com/product/4682
 C'est du Molex.
 
 ### Flash methods
+
 https://docs.u-boot.org/en/latest/board/allwinner/sunxi.html
 
 ### FEL flash method
@@ -62,6 +63,4 @@ https://linux-sunxi.org/FEL
 ### UBoot
 https://github.com/u-boot/u-boot/blob/master/doc/board/allwinner/sunxi.rst
 
-### Debian
-https://wiki.debian.org/InstallingDebianOn/Allwinner
 

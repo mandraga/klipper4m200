@@ -13,7 +13,7 @@ is not enabled. So no  ADB.
 The FEL mode is the protected mmcblk2Boot0 EMMC partition.
 It allows to load a FES image, do not touch it. Any error will brick the device (unless you can solder a new programmed EMMC).
 
-On the Zortrax, the Allwinner bootloader first looks for FEL mode, then locates SDcard 2 (non cxistent) and the EMMC2.
+On the Zortrax, the Allwinner bootloader first looks for FEL mode, then locates SDcard 0 (non existent) and the EMMC2.
 Then it loads UBoot.
 Uboot cannot be stopped to use it to scan the partitions as his bootdelay is 0.
 Uboot loads the linux Kernel.
@@ -41,7 +41,7 @@ Q8 A33 Tablet	                        sun8i-a33-q8-tablet.dtb
 
 #### Single board computers (very similar)
 Olimex A33-OLinuXino	                sun8i-a33-olinuxino.dtb
-Sinlinx SinA33	                        sun8i-a33-sinlinx-sina33.dtb              1GB DDR3 、4GB EMMC
+Sinlinx SinA33	                        sun8i-a33-sinlinx-sina33.dtb    1GB DDR3 、4GB EMMC
 
 ## FEX files
 
@@ -61,7 +61,7 @@ sudo ./sunxi-fel uboot u-boot-sunxi-with-spl.bin
 
 
 ```
-eraly jump fel
+early jump fel
 
 U-Boot SPL 2025.10-rc5 (Oct 19 2025 - 13:51:27 +0200)
 DRAM: 1024 MiB
@@ -164,7 +164,7 @@ input: axp22-supplyer as /devices/platform/axp22_board/axp22-supplyer.20/input/i
 
 ```
 microcom -p /dev/ttyUSB0 -s 115200
-press 'e' to start FEL mode
+press '2' to start FEL mode
 ```
 
 In another terminal:
@@ -174,3 +174,184 @@ sudo ./sunxi-fel uboot u-boot-sunxi-with-spl.bin
 ```
 
 This loads u-boot on the system.
+
+
+### After some progress on another A33 system I understood a fex things about my u-boot failures
+
+I need to specify the power lines and the RAM parameters according to the fex files, otherwise it does not boot directly on the machine. I added the parameters and reflashed with confidence the boot sector on the EMMC thinking that I would reinstall from fel mode if it did not work.
+
+IT WAS A MISTAKE! Yes u-boot started, but could not find any EMMC and I COULD NOT ENTER the FEL mode
+again! Below is the log of what I did from the armbian console:
+
+```
+patrick@lime-a33:~$ sudo dd if=u-boot-sunxi-with-spl.bin of=/dev/mmcblk2 bs=1024 seek=8 DO NOT DO THAT!!!
+[sudo] Mot de passe de patrick : 
+[  433.610039]  mmcblk2: p1 p2 p3 < p5 p6 p7 p8 p9 p10 p11 p12 >
+[  433.615911] mmcblk2: p1 size 12378112 extends beyond EOD, truncated
+592+1 enregistrements lus
+592+1 enregistrements écrits
+606832 octets (607 kB, 593 KiB) copiés, 0,0985589 s, 6,2 MB/s
+patrick@lime-a33:~$ sync
+```
+
+The log shows:
+```
+�
+U-Boot SPL 2026.01-rc2-g5b13f84438d6-dirty (Mar 16 2026 - 20:16:29 +0100)
+DRAM: 1024 MiB
+Trying to boot from MMC2
+MMC Device 1 not found
+spl: could not find mmc device 1. error: -19
+Error: -19
+SPL: Unsupported Boot Device!
+SPL: failed to boot from all boot devices
+### ERROR ### Please RESET the board ###
+```
+
+But I assumed would show:
+```
+HELLO! BOOT0 is starting!
+boot0 version : 3.1.0
+reg_addr 0x01f00100 =0x00000000
+reg_addr 0x01f00104 =0x00000000
+reg_addr 0x01f00108 =0x00000000
+reg_addr 0x01f0010c =0x00000000
+reg_addr 0x01f00110 =0x00000000
+reg_addr 0x01f00114 =0x00000000
+DRAM DRIVE INFO: V1.5
+DRAM CLK =552 MHZ
+DRAM simple test OK.
+dram size =1024
+card boot number = 2
+card no is 2
+sdcard 2 line count 0
+[mmc]: mmc driver ver 2014-07-07 16:54
+[mmc]: ***Try SD card 2***
+[mmc]: mmc 2 cmd 8 timeout, err 0x00000100
+[mmc]: mmc 2 cmd 8 err 0x00000100
+[mmc]: mmc 2 send if cond failed
+[mmc]: mmc 2 cmd 55 timeout, err 0x00000100
+[mmc]: mmc 2 cmd 55 err 0x00000100
+[mmc]: mmc 2 send app cmd failed
+[mmc]: ***Try MMC card 2***
+[mmc]: MMC ver 5.0
+[mmc]: SD/MMC Card: 4bit, capacity: 7456MB
+[mmc]: vendor: Man 0x00150100 Snr 0x005c1dfe
+[mmc]: product: 8WPD3
+[mmc]: revision: 5.2
+[mmc]: ***SD/MMC 2 init OK!!!***
+sdcard 2 init ok
+The size of uboot is 0x000bc000.
+sum=0xb3d23440
+src_sum=0xb3d23440
+set_mmc_para,sdly 50M 0
+set_mmc_para,sdly 25M 0
+Succeed in loading uboot from sdmmc flash.
+Ready to disable icache.
+Jump to secend Boot.
+[      0.332]
+
+U-Boot SPL 2026.01-rc2-g5b13f84438d6-dirty (Mar 16 2026 - 20:16:29 +0100)
+DRAM: 1024 MiB
+Trying to boot from MMC2
+MMC Device 1 not found
+spl: could not find mmc device 1. error: -19
+Error: -19
+SPL: Unsupported Boot Device!
+SPL: failed to boot from all boot devices
+### ERROR ### Please RESET the board ###
+```
+
+The primary bootloader does not show up. My u-boot starts but it does not find the EMMC and fails without FEL mode.
+Until now, unless the one time I destroyed the Boot0 sector, I was able to boot in FEL mode.
+
+### I understand:
+
+This is the second time I destroyed my boot0 sectors.
+Because they can be seen as separate partitions in liunx, I assumed that boot0 was outside of the EMMC. But in fact, the first sectors of the flash are boot0. Because it is a new soldered version of the EMMC, I must have forgotten to lock them back when programming it.
+My attemps to boot from the SD card instead of soldering a new chip failed because I had no proper memory/power rails setup in my u-boot. Only chainloading worked. The memory was then intialised because of the previous initialisation from the stock u-boot. My memory setup was wrong, and I could not write my bootloader because the boot sectors where protected.
+Now, I will be able to have a proper u-boot chainloaded from the first one, but before changing the EMMC, I will retry my SD card mod and use fel-sdboot.sunxi on an SD card to enable FEL mode.
+And until I can get FEL mode from my u-boot, I will chainload.
+
+So at 8K we have the primary bootloader in a protected area. And after 0xA000 we have the secondary bootloader which is a u-boot.bin type.
+On my two systems this secondary boot was located at 0x12A6000.
+
+Turns out my new EMMC seemed not fully soldered such as it does not enable the 8bit interface. The Boot0 sectors shows up but not the other data.
+-> in fact the soldering whent wel it seems, and the problem is already seen on the original firmware which boots fine:
+* The fex file shows that emmc2 is disabled, I assume that the sunxi u-boot source code has been patched for a custom emmc init.
+* In the stock boot, we see a clock reduced to 50Mhz and only 4 bits used instead of 8.
+Once this is applied in the device tree, and once u-boot is compiled with mmc mode command, we can list the emmc partitions in u-boot and boot over emmc and not USB.
+We can also use the device as a mass storage system.
+
+https://docs.u-boot.org/en/latest/usage/cmd/mmc.html
+
+In u-boot, mount the mmc2 in sd card speed mode (50Mhz):
+```
+=> mmc dev 1 0 1
+=> mmc part
+=> mmc rescan
+=> ums 0 mmc 1
+```
+
+The parts apear in linux, we can dump the EMMC or configure the boot process:
+
+Using the m200 as a mass storage (not from Armbian):
+```
+sudo dd if=sunxi_env.img of=/dev/sde5
+```
+
+However it is riskied to do things like this the from Armbian console. You will have soon destroyed one of your drives instead of programmed the m200.
+
+## Installing on the flash.
+
+We cannot at all replace Boot0, too risky. We can flash the stage two in place of the sunxi one an see what is going on.
+Flash my u-boot proper to 0x12A6000 to see if it works.
+
+From Armbian:
+```
+sudo dd if=u-boot-dtb.bin of=/dev/mmcblk2 bs=512 seek=38192
+```
+
+This does not work, stage 1 reports this:
+
+```
+[mmc]: ***SD/MMC 2 init OK!!!***
+sdcard 2 init ok
+ERROR! NOT find the head of uboot.
+Ready to disable icache.
+Jump to Fel.
+```
+
+But the chainloaded uboot would now have access to the EMMC.
+
+No chainload works with EMMC, loading linux from th esunxi bootloader fials, event with their zImage.
+The system is so closed, that I do not want to change Boot0. And I replaced my EMMC twice so enoug.
+However the MMC performances are great compared to a Sandisk Cruzer blade. I made my tests for a while on a USB3 memory stick. It is gread but Armbian gives a warning "slow drive" with the Sandisk.
+I have found a way to encasulate u-boot-dtb.bin in the sunxi format.
+I will make a app to encapsulate mainline u-boot in sunxi format.
+It wil be called sunxisecondstagetool.
+
+#$ sunxisecondstagetool u-boot-dtb.bin
+
+## And rebrick!
+
+I managed to overwrite again the EMMC! Using the wrong command, and the write protection failed prior to that. While I double checked it did not work.
+
+### Boor protection:
+
+```
+cat /sys/block/mmcblk2boot1/ro
+cat /sys/block/mmcblk2boot1/force_ro
+and
+sudo mmc extcsd read /dev/mmcblk2 | grep -E 'BOOT_WP|BOOT_CONFIG_PROT|PARTITION_CONFIG|USER_WP'
+```
+
+* BOOT_WP: 0x00 → no boot partition write protection set
+* nonzero BOOT_WP → temporary or permanent boot write protection is enabled
+
+
+### A33 core schematics.
+
+I found some schematis for the A33 Core board (https://github.com/xianxuhappy/A33_M2).
+So, the only positive thing, is that if you brick the board, there is a sdio1 on the wifi chip. So maybe after removing the emmc, the chip will boot on SDC1.
+

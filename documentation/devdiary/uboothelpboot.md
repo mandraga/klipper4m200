@@ -854,7 +854,7 @@ struct spare_boot_ctrl_head
 	unsigned int  uboot_length;       // the size of uboot
 	unsigned char version[8];         // uboot version
 	unsigned char platform[8];        // platform information
-	int           reserved[1];        //stamp space, 16bytes align
+	int           reserved[1];        // stamp space, 16bytes align
 };
 ```
 Them bootloader is from 0x12A6000 to 0x1375FFF which is 851967 Bytes.
@@ -870,43 +870,43 @@ jump_instruction (4 bytes)
 Offset: 0x00000000
 Value: 3e 01 00 ea
 Interpretation: Little-endian, so the value is 0xEA00013E.
-magic (8 bytes)
 
+magic (8 bytes)
 Offset: 0x00000004
 Value: 75 62 6f 6f 74 00 00 00
 Interpretation: ASCII string "uboot\0\0\0".
-check_sum (4 bytes)
 
+check_sum (4 bytes)
 Offset: 0x0000000C
 Value: b7 50 3a 24
 Interpretation: Little-endian, so the value is 0x243A50B7.
-align_size (4 bytes)
 
+align_size (4 bytes)
 Offset: 0x00000010
 Value: 00 40 00 00
 Interpretation: Little-endian, so the value is 0x00004000 (16 KB).
-length (4 bytes)
 
+length (4 bytes)
 Offset: 0x00000014
 Value: 00 c0 0b 00
 Interpretation: Little-endian, so the value is 0x000BC000 (753,664 bytes).
-uboot_length (4 bytes)
 
+uboot_length (4 bytes)
 Offset: 0x00000018
 Value: 00 00 0b 00
 Interpretation: Little-endian, so the value is 0x000B0000 (720,896 bytes).
-version (8 bytes)
 
+version (8 bytes)
 Offset: 0x0000001C
 Value: 31 2e 31 2e 30 00 00 00
 Interpretation: ASCII string "1.1.0\0\0\0".
-platform (8 bytes)
 
+platform (8 bytes)
 Offset: 0x00000024
 Value: 31 2e 30 2e 30 00 00 00
 Interpretation: ASCII string "1.0.0\0\0\0".
-reserved (4 bytes)
 
+reserved (4 bytes)
 Offset: 0x0000002C
 Value: 00 00 00 4A
 Interpretation: Little-endian, so the value is 0x4A000000.
@@ -1078,3 +1078,13 @@ U-Boot 2011.09-rc1 (Mar 21 2017 - 01:10:46) Allwinner Technology
 
 2011.09-rc1 compiled the 21 Mar 2017
 
+### Fourth brick
+
+I managed to load u-boot-dtb.bin from sunxi SPL, but the FEL mode in not enabled if it can boot the second stage.
+And since the second stage boot failed with mainline u-boot, I was stuck.
+I should have tested on a SD card on my ezeetab 96Q10 system.
+Now I am good to replace my EMMC. I did not check if the MMC worked on the latest chainloadings.
+
+#### Trying chainload on my last working printer
+
+It seems that emmc works when chainloading now. So I will keep the chainloading process and never touch the zortrax bootloader again.

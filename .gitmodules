@@ -28,3 +28,6 @@
 [submodule "submodules/A33_M2"]
 	path = submodules/A33_M2
 	url = https://github.com/xianxuhappy/A33_M2
+[submodule "submodules/sunxiSPL_to_uboot_proper"]
+	path = submodules/sunxiSPL_to_uboot_proper
+	url = git@github.com:mandraga/sunxiSPL_to_uboot_proper.git

@@ -31,3 +31,6 @@
 [submodule "submodules/sunxiSPL_to_uboot_proper"]
 	path = submodules/sunxiSPL_to_uboot_proper
 	url = git@github.com:mandraga/sunxiSPL_to_uboot_proper.git
+[submodule "submodules/ubootpackerforsunxiSPL"]
+	path = submodules/ubootpackerforsunxiSPL
+	url = git@github.com:mandraga/ubootpackerforsunxiSPL.git

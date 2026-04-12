@@ -22,7 +22,7 @@ nor the thermocouple. And with a bit of luck with the fans cable length, you do 
 
 ### Phaetus Rapido
 
-And download the main body and the rapido adapter.
+Download the main body and the rapido adapter.
 Instead of an extruder mount, print dragonburnermountonM200_B.stl
 You need 35mm 5mm/6mm M3 screws (flat head for the 6mm long screw).
 Replace the thermistor with a thermocouple.
@@ -32,11 +32,11 @@ Replace the thermistor with a thermocouple.
 This one is not really suported by the dragon burner project.
 You need 35mm 5mm/6mm M3 screws (flat head for the 6mm long screw).
 Replace the thermistor with a thermocouple.
-Print the main fan body and this adapter:
+Print only the main fan body, and this adapter:
 https://www.printables.com/model/1292661-dragonburner-tz-v6-20-mount-with-v6-nozzle
 Add washers on the support because the heater wobbles.
 Change the nozzle to a V6 because the default nozzle is not made for that mount.
-It will be at blower level and won't work.
+The original nozzle will be flsuh with the blower output level and won't work.
 
 ### Dragon hotend
 

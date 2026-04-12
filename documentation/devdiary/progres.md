@@ -355,3 +355,32 @@ sudo mmc extcsd read /dev/mmcblk2 | grep -E 'BOOT_WP|BOOT_CONFIG_PROT|PARTITION_
 I found some schematis for the A33 Core board (https://github.com/xianxuhappy/A33_M2).
 So, the only positive thing, is that if you brick the board, there is a sdio1 on the wifi chip. So maybe after removing the emmc, the chip will boot on SDC1.
 
+## Debrik and boot using sunxi
+
+I managed to debrik my third printer using a capacitor.
+Then I managed to pack uboot proper into a structure understandable to the legacy sunxi uboot0 (see submodule).
+But while I had the emmc working on u-boot proper, linux failed to start as expected.
+It was hanging after some good progress on the kernel launch.
+
+So back to chainloading, but I put the rootfs on the emmc and it is much faster than the USB stick.
+```
+setenv bootargs root=/dev/mmcblk2p1 rootwait console=ttyS0,115200 rw
+ext4load usb 0:2 0x42000000 boot/zImage
+ext4load usb 0:1 0x43000000 sun8i-a33-zortrax-m200plus.dtb
+bootz 0x42000000 - 0x43000000
+```
+
+Now I have the screen init problem again. The fix is to unload and load the driver.
+
+```
+sudo modprobe -r panel-mtf0397swi
+sudo modprobe panel-mtf0397swi
+```
+I added it in a service. And tryed a ton of things, but I guess it's the chainloading.
+If unbricking through a capacitor works for boot0, I will try again u-boot with SPL on Boot0. And FEL mode would be achieved by chainloading the FEL image for SD card.
+
+## Changing the machine name
+
+sudo hostnamectl set-hostname M200Plus_A33
+sudo nano /etc/hosts <- replace the names
+

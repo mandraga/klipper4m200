@@ -1084,7 +1084,7 @@ I managed to load u-boot-dtb.bin from sunxi SPL, but the FEL mode in not enabled
 And since the second stage boot failed with mainline u-boot, I was stuck.
 I should have tested on a SD card on my ezeetab 96Q10 system.
 Now I am good to replace my EMMC. I did not check if the MMC worked on the latest chainloadings.
+- A day later -
+I have found a way to recover from that, by adding a 140nF capacitor on the EMMC side of the EMMC CLK resistor after power on (only touching, no solder). It messes up the clock without damaging the pin and because it makes the EMMC detection fail, the CPU enters FEL mode.
 
-#### Trying chainload on my last working printer
-
-It seems that emmc works when chainloading now. So I will keep the chainloading process and never touch the zortrax bootloader again.
+The very strange thing is that the BOOT0 messages disapeared, it whent straight to BOOT1, maybe it is because I did not include the FEX script.bin file.

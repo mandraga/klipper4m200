@@ -111,6 +111,6 @@ Then, because it is klipper, you must run calibration towers with your filaments
 ## About
 
 This work lasted from october 2025 to April 2026 and was much more difficult than planed, given that the device tree of this thing is really complex, the EMMC is really touchy, and the screen had no driver.
-The boot process led to 4 bricks, and needed resoldering a new programmed EMMC to save the boards.
+The boot process investigation led to 4 bricks, and needed resoldering a new programmed EMMC to save the boards.
 Since then, I tryed to port an ezeetab 96Q10 A-33 Andorid tablet to linux and it was quicker (a week) and also helped to progress on this project.
 

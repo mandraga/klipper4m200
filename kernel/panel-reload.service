@@ -1,0 +1,12 @@
+[Unit]
+After=systemd-modules-load.service
+Before=KlipperScreen.service display-manager.service
+Wants=sysinit.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/panel_reload.sh
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,105 @@
+ &�0�HELLO! BOOT0 is starting!
+boot0 version : 3.1.0
+reg_addr 0x01f00100 =0x00000000
+reg_addr 0x01f00104 =0x00000000
+reg_addr 0x01f00108 =0x00000000
+reg_addr 0x01f0010c =0x00000000
+reg_addr 0x01f00110 =0x00000000
+reg_addr 0x01f00114 =0x00000000
+DRAM DRIVE INFO: V1.5
+DRAM CLK =552 MHZ
+DRAM simple test OK.
+dram size =1024
+card boot number = 2
+card no is 2
+sdcard 2 line count 0
+[mmc]: mmc driver ver 2014-07-07 16:54
+[mmc]: ***Try SD card 2***
+[mmc]: mmc 2 cmd 8 timeout, err 0x00000100
+[mmc]: mmc 2 cmd 8 err 0x00000100
+[mmc]: mmc 2 send if cond failed
+[mmc]: mmc 2 cmd 55 timeout, err 0x00000100
+[mmc]: mmc 2 cmd 55 err 0x00000100
+[mmc]: mmc 2 send app cmd failed
+[mmc]: ***Try MMC card 2***
+[mmc]: MMC ver 5.0
+[mmc]: SD/MMC Card: 4bit, capacity: 7456MB
+[mmc]: vendor: Man 0x00110100 Snr 0x007fac55
+[mmc]: product: 008G7
+[mmc]: revision: 3.0
+[mmc]: ***SD/MMC 2 init OK!!!***
+sdcard 2 init ok
+The size of uboot is 0x000bc000.
+sum=0x243a50b7
+src_sum=0x243a50b7
+set_mmc_para,sdly 50M 0
+set_mmc_para,sdly 25M 0
+Succeed in loading uboot from sdmmc flash.
+Ready to disable icache.
+Jump to secend Boot.
+[      0.364]
+
+U-Boot 2011.09-rc1 (Mar 21 2017 - 01:10:46) Allwinner Technology 
+
+[      0.371]version: 1.1.0
+[      0.458]pmbus:   ready
+[      0.460]PMU: AXP221
+[      0.462]PMU: AXP22x found
+[      0.466]PMU: dcdc3 1200
+[      0.469]PMU: pll1 1008 Mhz,PLL6=600 Mhz
+AXI=336 Mhz,AHB=200 Mhz, APB1=100 Mhz 
+set power on vol to default
+dcdc1_vol = 3000
+dcdc2_vol = 1100
+dcdc3_vol = 1200
+dcdc4_vol = 0
+dcdc5_vol = 1500
+aldo2_vol = 2500
+aldo3_vol = 3000
+eldo1_vol = 1800
+dldo2_vol = 1800
+find power_sply to end
+no battery, limit to dc
+fel key old mode
+run key detect
+no key found
+0x32
+set next system status
+reset cpu
+�HELLO! BOOT0 is starting!
+boot0 version : 3.1.0
+reg_addr 0x01f00100 =0x00000000
+reg_addr 0x01f00104 =0x00000000
+reg_addr 0x01f00108 =0x5aa5a55a
+reg_addr 0x01f0010c =0x00000000
+reg_addr 0x01f00110 =0x00000000
+reg_addr 0x01f00114 =0x00000000
+eraly jump fel
+
+
+----------------------------------------------------------------------
+We see that it loads second stage, and second stage looks for '2' pressed.
+If it is, then it writes 0x5aa5a55a at 0x01f00108 and resets.
+On reset, BOOT0 will run FEL mode because 0x01f00108 = 0x5aa5a55a.
+
+So if we put here our u-boot mainline code, it won't work.
+We can do something using u-boot memory commands:
+
+```
+=> mw.l 0x01f00108 0x5aa5a55a 1
+=> md.l 0x01f00108 1
+01f00108: 5aa5a55a                             Z..Z
+=> reset
+```
+
+And we are in fel mode.
+----------------------------------------------------------------------
+
+We set:
+```
+setenv fel_mode 'mw.l 0x01f00108 0x5aa5a55a 1; reset'
+```
+And to go in fel mode:
+```
+run fel_mode
+```

@@ -481,10 +481,10 @@
       "gencad": "../../../../../../../mnt/windowsshare1/3Dprints/usb_uart_m200.cad",
       "idf": "",
       "netlist": "",
-      "plot": "",
+      "plot": "../../../production/elec/linux_console/",
       "pos_files": "",
       "specctra_dsn": "",
-      "step": "../../../../../../../mnt/windowsshare1/3Dprints/usb_uart_m200.step",
+      "step": "../../../../../../../mnt/shareLittle/3Dprints/usb_uart_m200.step",
       "svg": "",
       "vrml": ""
     },
@@ -492,7 +492,7 @@
   },
   "schematic": {
     "annotate_start_num": 0,
-    "bom_export_filename": "BOMfarnell.csv",
+    "bom_export_filename": "/home/patrick/gitprint/zortrax/commertz/m200_comertz/production/elec/usb_uart_m200.csv",
     "bom_fmt_presets": [],
     "bom_fmt_settings": {
       "field_delimiter": ",",

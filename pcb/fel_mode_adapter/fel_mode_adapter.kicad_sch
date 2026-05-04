@@ -1709,10 +1709,9 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(fields_autoplaced yes)
 		(uuid "1ff49152-46d6-4389-9a09-318fd5d414a0")
 		(property "Reference" "R1"
-			(at 130.81 71.12 90)
+			(at 130.556 75.184 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1720,7 +1719,7 @@
 			)
 		)
 		(property "Value" "5.1k"
-			(at 130.81 73.66 90)
+			(at 131.064 80.01 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1746,6 +1745,15 @@
 			)
 		)
 		(property "Description" "Resistor"
+			(at 130.81 77.47 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "farnell" "9334645"
 			(at 130.81 77.47 0)
 			(effects
 				(font

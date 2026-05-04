@@ -3137,7 +3137,7 @@
 	)
 	(wire
 		(pts
-			(xy 203.2 54.61) (xy 240.03 54.61)
+			(xy 203.2 54.61) (xy 250.19 54.61)
 		)
 		(stroke
 			(width 0)
@@ -3197,7 +3197,7 @@
 	)
 	(wire
 		(pts
-			(xy 203.2 57.15) (xy 240.03 57.15)
+			(xy 203.2 57.15) (xy 250.19 57.15)
 		)
 		(stroke
 			(width 0)
@@ -4422,7 +4422,7 @@
 	)
 	(symbol
 		(lib_id "Connector:Conn_01x02_Socket")
-		(at 245.11 54.61 0)
+		(at 255.27 54.61 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -4431,7 +4431,7 @@
 		(fields_autoplaced yes)
 		(uuid "7ccc9c8c-50b1-4079-a0c6-11cbed63bf6d")
 		(property "Reference" "J1"
-			(at 246.38 54.6099 0)
+			(at 256.54 54.6099 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4440,7 +4440,7 @@
 			)
 		)
 		(property "Value" "Conn_01x02_Socket"
-			(at 246.38 57.1499 0)
+			(at 256.54 57.1499 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4449,7 +4449,7 @@
 			)
 		)
 		(property "Footprint" "Connector_Molex:Molex_PicoBlade_53047-0210_1x02_P1.25mm_Vertical"
-			(at 245.11 54.61 0)
+			(at 255.27 54.61 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4458,7 +4458,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 245.11 54.61 0)
+			(at 255.27 54.61 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4467,7 +4467,7 @@
 			)
 		)
 		(property "Description" "Generic connector, single row, 01x02, script generated"
-			(at 245.11 54.61 0)
+			(at 255.27 54.61 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4476,7 +4476,7 @@
 			)
 		)
 		(property "farnell" "9733051"
-			(at 245.11 54.61 0)
+			(at 255.27 54.61 0)
 			(effects
 				(font
 					(size 1.27 1.27)

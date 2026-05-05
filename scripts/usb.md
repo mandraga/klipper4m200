@@ -12,19 +12,13 @@ Until the UMS mode works, we can use scripts to break the image into 16MB files 
 We can boot an image from the usb drive and use this image to flash the device.
 From the zortrax single board computer:
 
-```
-setenv bootargs root=/dev/sda1 rootwait console=ttyS0,115200  rw
-usb start
-fatload usb 0:1 0x42000000 zImage
-fatload usb 0:1 0x43000000 sun8i-a33-zortrax-m200plus.dtb
-bootz 0x42000000 - 0x43000000
-```
+The rootfs is on /dev/sda2, /dev/sda1 is used for files.
 
 ```
 setenv bootargs root=/dev/sda2 rootwait console=ttyS0,115200  rw
 usb start
-ext4load usb 0:1 0x42000000 zImage
-ext4load usb 0:1 0x43000000 sun8i-a33-zortrax-m200plus.dtb
+fatload usb 0:1 0x42000000 zImage
+fatload usb 0:1 0x43000000 sun8i-a33-zortrax-m200plus.dtb
 bootz 0x42000000 - 0x43000000
 ```
 

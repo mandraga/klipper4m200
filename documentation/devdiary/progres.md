@@ -293,6 +293,13 @@ In u-boot, mount the mmc2 in sd card speed mode (50Mhz):
 => ums 0 mmc 1
 ```
 
+```
+=> mmc dev 2 0 2
+=> mmc part
+=> mmc rescan
+=> ums 0 mmc 2
+```
+
 The parts apear in linux, we can dump the EMMC or configure the boot process:
 
 Using the m200 as a mass storage (not from Armbian):
@@ -384,3 +391,20 @@ If unbricking through a capacitor works for boot0, I will try again u-boot with 
 sudo hostnamectl set-hostname M200Plus_A33
 sudo nano /etc/hosts <- replace the names
 
+##  Booting on rev 1
+
+It is possible to enable some USB on the OTG port.
+Mass storage or USB host.
+
+```
+=> mmc dev 2 0 2
+=> mmc part
+=> mmc rescan
+=> ums 0 mmc 2
+```
+
+Copy the rootfs to the first drive, example:
+
+```
+sudo rsync -aHAX --numeric-ids ./ /media/user/57f8f4bc-abf4-655f-bf67-946fc0f9f25b1
+```

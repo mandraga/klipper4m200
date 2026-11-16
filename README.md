@@ -59,8 +59,8 @@ The original emmc is not that much altered, only the env. You can resore it with
 
 * On version 2.1, Linux should detect the ethernet usb adapter on the USB port.
   Version 2.1 has two usb ports.
-* On version 1.1, the USB0 trace must be cut and a posrt soldered to boot from USB. You need to connect some ethernet 
-adapter to an usb hub.
+* ~~On version 1.1, the USB0 trace must be cut and a posrt soldered to boot from USB. You need to connect some ethernet 
+adapter to an usb hub.~~ -> May not be required with the last device tree, you can use the second port, it is in host mode and works with 5V enabled.
   Version 1.1 has only one USB port on the front.
 
 Then connect your printer to the network.
@@ -83,11 +83,11 @@ See the Readme in the MCU folder, you need an ST-Link programmer to mass erase t
 ## Klipper config
 
 rpanfili has already configured klipper for zortrax M200 but for an SK200 MCU board.
-However the geometry and a lot of stock parameters are already in his configuration.
+It is a different MCU board but the geometry and a lot of stock parameters are already in his configuration.
 
 Zortrax has published a Marlin port for the M200.
 By looking at the commits, and the work done in the zmxxxp-re repository, I could find the MCU pinouts in "pins_ZORTRAX_M200.h" to configure the klipper MCU firmware.
-Be carefull whith the X, Y axis stops, they are not the same depending on verison 1.1 or 2.2.
+Be carefull whith the X, Y axis stops, they are not the same depending on the printer version: REV1.1 or REV2.2.
 
 The configuration in this repo is the rpanfili one, modified for the Zortrax MCU board instead of the SK1.4.
 
@@ -105,12 +105,12 @@ https://www.youtube.com/watch?v=USvg6D0cXE4
 ## Start printing
 
 If everything went fine, you can connect to Mainsail or Fluid web interfaces copy the klipper configuration and start configuring the bed level.
-Then, because it is klipper, you must run calibration towers with your filaments and tweak orcaslicer prior to begin printing. That's what's lost in the process but you have control and can use any filament.
+Then, because it is klipper, you can run calibration towers with your filaments and tweak orcaslicer prior to begin printing. That's what was lost in the conversion process but you have control and can use any filament. A recent project extracted material parameters: https://github.com/MarcinKowalik-AGH/Zortrax-Inventure-OrcaSlicer-integration
 
 
 ## About
 
 This work lasted from october 2025 to April 2026 and was much more difficult than planed, given that the device tree of this thing is really complex, the EMMC is really touchy, and the screen had no driver.
 The boot process investigation led to 4 bricks, and needed resoldering a new programmed EMMC to save the boards.
-Since then, I tryed to port an ezeetab 96Q10 A-33 Andorid tablet to linux and it was quicker (a week) and also helped to progress on this project.
+Since then, I tryed to port an ezeetab 96Q10 A-33 Andorid tablet to linux and it was quicker (a week). It also helped to progress on this project.
 
